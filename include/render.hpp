@@ -78,8 +78,9 @@ public:
 
 	window_size get_window_size()
 	{
+		int w, h;
 		glfwGetFramebufferSize(window.get(), &w, &h);
-		window_size s = { .width = w, .height = w };
+		window_size s = { .width = w, .height = h };
 
 		return s;
 	}
@@ -108,8 +109,6 @@ public:
 
 protected:
 	static std::size_t glfw_counter;
-
-	int h, w;
 
 	std::unique_ptr<GLFWwindow, decltype(&glfwDestroyWindow)> window;
 
@@ -231,7 +230,7 @@ public:
 	virtual ~ui_render()
 	{}
 
-	mouse_position get_mouse_posistion()
+	mouse_position get_mouse_position()
 	{
 		mouse_position pos;
 		glfwGetCursorPos(window.get(), &(pos.x), &(pos.y));

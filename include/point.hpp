@@ -145,6 +145,20 @@ public:
 		return true;
 	}
 
+	/** Check if the point is equal to the point `p`
+	  *
+	  * @return true in case the point is equal or false otherwise
+	  */
+	bool is_equal(const point<T, n_dimension>& p) const
+	{
+		for(std::size_t i=0; i<n_dimension; i++){
+			if( (*this)[i] != p[i] )
+				return false;
+		}
+
+		return true;
+	}
+
 	/*
 	 * Operators --------------------------------------
 	 */
@@ -176,6 +190,16 @@ public:
 	point<T, n_dimension> operator-=(const point<T, n_dimension>& p)
 	{
 		return this->subtract(p);
+	}
+
+	bool operator==(const point<T, n_dimension>& p) const
+	{
+		return this->is_equal(p);
+	}
+
+	bool operator!=(const point<T, n_dimension>& p) const
+	{
+		return !(this->is_equal(p));
 	}
 
 protected:
