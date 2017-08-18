@@ -5,6 +5,7 @@
 
 #include "render.hpp"
 #include "segment.hpp"
+#include "polygon.hpp"
 
 namespace gmt {
 
@@ -70,29 +71,11 @@ public:
 		glEnd();
 	}
 
-	void plot(const point<double, 2>& p)
-	{
-		glVertex2d(p.x(), p.y());
-	}
-
-	void plot(const point<double, 2>& p, GLenum mode)
+	template<typename G>
+	void plot(const G& p, GLenum mode)
 	{
 		begin(mode);
 		plot(p);
-		end();
-	}
-
-	void plot(const segment<double, 2>& s)
-	{
-		plot(s.from);
-		plot(s.to);
-	}
-
-	void plot(const segment<double, 2>& s, GLenum mode)
-	{
-		begin(mode);
-		plot(s.from);
-		plot(s.to);
 		end();
 	}
 
@@ -109,6 +92,23 @@ public:
 		glBegin(mode);
 		plot(l);
 		glEnd();
+	}
+
+	void plot(const point<double, 2>& p)
+	{
+		glVertex2d(p.x(), p.y());
+	}
+
+	void plot(const segment<double, 2>& s)
+	{
+		plot(s.from);
+		plot(s.to);
+	}
+
+	void plot(const polygon<double, 2>& poly)
+	{
+		for(const auto& p : poly)
+			plot(p);
 	}
 
 	void renderize()

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "vec.hpp"
+#include "polygon.hpp"
 
 namespace gmt {
 
@@ -111,6 +112,28 @@ bool is_between(
 			 */
 			return (c[i] >= a[i] && c[i] <= b[i])
 				|| (c[i] <= a[i] && c[i] >= b[i]);
+		}
+	}
+
+	return false;
+}
+
+template<typename T, int n_dimension>
+bool intersect_in_polygon(
+	const polygon<T, n_dimension>& poly,
+	std::size_t a,
+	std::size_t b)
+{
+
+	segment<T, n_dimension> s0(poly[a], poly[b]);
+
+	if(poly.size() >= 2){
+		for(std::size_t i=0; i<poly.size(); i++){
+			segment<T, n_dimension> s1(poly[i], poly[(i+1)%poly.size()]);
+
+			if(s0.intersect_proper(s1))
+				return true;
+
 		}
 	}
 
