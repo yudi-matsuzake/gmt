@@ -58,13 +58,14 @@ public:
 		direction d_from = direction_in(*this, s.from, e);
 		direction d_to = direction_in(*this, s.to, e);
 
-		if(d_from == ON && is_between<T, n_dimension>(to, from, s.from))
+		if(d_from == ON && (is_between<T, n_dimension>(to, from, s.from)
+				|| is_between<T, n_dimension>(s.to, s.from, from)))
 			return true;
-		else if(d_to == ON && is_between<T, n_dimension>(to, from, s.from))
+		else if(d_to == ON && (is_between<T, n_dimension>(to, from, s.from)
+				|| is_between<T, n_dimension>(s.to, s.from, to)))
 			return true;
 
 		return false;
-
 	}
 
 	intersection::type intersect(
