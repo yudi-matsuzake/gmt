@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include "point.hpp"
+#include "segment.hpp"
 #include "exception.hpp"
 
 namespace gmt {
@@ -29,6 +30,12 @@ public:
 			this->axis[i] = p[i];
 
 	}
+
+	vec(const segment<T, n_dimension>& seg)
+	{
+		vec(seg.from, seg.to);
+	}
+
 
 	/** @brief constructs a vector with facilitator, the number of
 	  *  arguments is the same of the dimensions, e.g., vec(x, y, z, etc..)
