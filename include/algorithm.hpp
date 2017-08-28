@@ -79,14 +79,11 @@ bool is_equal(const T& a, const T& b, const T& e)
   */
 template<typename T>
 direction direction_in(
-	const point<T, 2>& p0,
-	const point<T, 2>& p1,
-	const point<T, 2>& p2,
+	const vec<T, 2>& v0,
+	const vec<T, 2>& v1,
 	double e = 0.0)
 {
-	double tmp = signed_parallelogram_area(
-			vec<T, 2>(p0, p1),
-			vec<T, 2>(p0, p2));
+	double tmp = signed_parallelogram_area(v0, v1);
 
 	if(is_equal(tmp, 0.0, e))
 		return ON;
@@ -98,20 +95,21 @@ direction direction_in(
 
 template<typename T>
 direction direction_in(
+	const point<T, 2>& p0,
+	const point<T, 2>& p1,
+	const point<T, 2>& p2,
+	double e = 0.0)
+{
+	return direction_in(vec<T, 2>(p0, p1), vec<T, 2>(p0, p2), e);
+}
+
+template<typename T>
+direction direction_in(
 	const segment<T, 2>& s,
 	const point<T, 2>& p,
 	const T& e = 0.0)
 {
-	double tmp = signed_parallelogram_area(
-			vec<T, 2>(s.from, s.to),
-			vec<T, 2>(s.from, p));
-
-	if(is_equal(tmp, 0.0, e))
-		return ON;
-	else if(tmp < 0.0)
-		return RIGHT;
-	else
-		return LEFT;
+	return direction_in(s.from, s.to, p, e);
 }
 
 template<typename T, int n_dimension>
@@ -140,6 +138,22 @@ bool is_between(
 	}
 
 	return false;
+}
+
+/**
+  * calculates the angle of two vectors going to left
+  */
+template<typename T, std::size_t n_dimension>
+double angle_to_left(
+	const vec<T, n_dimension>& v0,
+	const vec<T, n_dimension>& v1)
+{
+	double minor_angle = v0.angle(v1);
+
+	if(direction_in(v0, v1) == RIGHT)
+		return 2*pi - minor_angle;
+
+	return minor_angle;
 }
 
 /**
@@ -270,23 +284,95 @@ bool is_ear(const polygon<T, n_dimension>& poly, std::size_t index)
 				? poly.size() - 1
 				: index - 1;
 
-	segment<T, n_dimension> seg = {
+	vec<T, n_dimension> vprev(poly[index], poly[prev_index]); 
+	vec<T, n_dimension> vnext(poly[index], poly[next_index]);
+
+	double angle = angle_to_left(vprev, vnext);
+
+	segment<T, n_dimension> s0 = {
 		poly[prev_index],
 		poly[next_index]
 	};
 
-	direction i_direction = direction_in(seg, poly[index]);
+	if(angle > pi){
 
-	for(	size_t i = (next_index + 1)%poly.size();
-		i != prev_index;
-		i = (i + 1)%poly.size())
-	{
-		direction d = direction_in(seg, poly[i]);
-		if(d == ON || d == i_direction)
-			return false;
+		size_t prev_prev_index = (prev_index == 0)
+						? (poly.size() - 1)
+						: (prev_index - 1);
+		size_t next_next_index = (next_index + 1) % poly.size();
+
+		/*
+		 * check if the next_next vertice and the prev_prev
+		 * are has a bigger angle than the segment prev, next
+		 */
+		if(poly.size() > 3){
+
+			vec<T, n_dimension> vprev_next(
+				poly[prev_index],
+				poly[next_index]
+			);
+
+			vec<T, n_dimension> vprev(
+				poly[prev_index],
+				poly[index]
+			);
+
+			vec<T, n_dimension> vpprev(
+				poly[prev_index],
+				poly[prev_prev_index]
+			);
+
+			if(	angle_to_left(vprev, vprev_next)
+				> angle_to_left(vprev, vpprev)){
+				return false;
+			}
+
+			/*
+			 * because only if the poly has size bigger than 4
+			 * next_next !+ prev_prev
+			 */
+			if(poly.size() > 4){
+
+				vec<T, n_dimension> vnext_prev(
+					poly[next_index],
+					poly[prev_index]
+				);
+
+				vec<T, n_dimension> vnext(
+					poly[next_index],
+					poly[index]
+				);
+
+				vec<T, n_dimension> vnnext(
+					poly[next_index],
+					poly[next_next_index]
+				);
+
+				if(	angle_to_left(vnext, vnext_prev)
+					< angle_to_left(vnnext, vnext_prev)){
+					return false;
+				}
+
+			}
+
+		}
+
+		for(	size_t i = next_next_index;
+			i != prev_prev_index;
+			i = (i + 1)%poly.size())
+		{
+			segment<T, n_dimension> s1 = { poly[i], poly[(i+1)%poly.size()] };
+
+			if(intersect_proper(s0, s1)){
+				return false;
+			}
+
+		}
+
+		return true;
 	}
 
-	return true;
+	return false;
 }
 
 template<typename T, std::size_t n_dimension>
@@ -303,20 +389,17 @@ bool is_mouth(const polygon<T, n_dimension>& poly, std::size_t index)
 				? poly.size() - 1
 				: index - 1;
 
-	segment<T, n_dimension> seg = {
-		poly[prev_index],
-		poly[next_index]
-	};
+	segment<T, n_dimension> s0(poly[prev_index], poly[next_index]);
 
-	direction i_direction = direction_in(seg, poly[index]);
-
-	for(	size_t i = (next_index + 1)%poly.size();
+	for(	size_t i = next_index;
 		i != prev_index;
 		i = (i + 1)%poly.size())
 	{
-		direction d = direction_in(seg, poly[i]);
-		if(d == ON || d != i_direction)
+		segment<T, n_dimension> s1 = { poly[i], poly[(i+1)%poly.size()] };
+
+		if(intersect_proper(s0, s1))
 			return false;
+
 	}
 
 	return true;
