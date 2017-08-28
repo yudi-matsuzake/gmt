@@ -238,6 +238,93 @@ intersection::type intersect(
 }
 
 /**
+  * check if an vetex `i` of the polygon `poly` is
+  * reflex
+  * TODO: this function consider the polygon was created
+  * in anti-clockwise; need to check that
+  */
+template<typename T, std::size_t n_dimension>
+bool is_reflex(const polygon<T, n_dimension>& poly, std::size_t i)
+{
+	if(poly.size() < 3)
+		throw poly_hasnt_enough_vertex(poly.size(), 3);
+
+	size_t next_index = (i + 1) % poly.size();
+	size_t prev_index = (i == 0)
+				? poly.size() - 1
+				: i - 1;
+
+	direction d = direction_in(poly[i], poly[prev_index], poly[next_index]);
+
+	return d == LEFT;
+}
+
+template<typename T, std::size_t n_dimension>
+bool is_ear(const polygon<T, n_dimension>& poly, std::size_t index)
+{
+	if(is_reflex(poly, index))
+		return false;
+
+	size_t next_index = (index + 1) % poly.size();
+	size_t prev_index = (index == 0)
+				? poly.size() - 1
+				: index - 1;
+
+	segment<T, n_dimension> seg = {
+		poly[prev_index],
+		poly[next_index]
+	};
+
+	direction i_direction = direction_in(seg, poly[index]);
+
+	for(	size_t i = (next_index + 1)%poly.size();
+		i != prev_index;
+		i = (i + 1)%poly.size())
+	{
+		direction d = direction_in(seg, poly[i]);
+		if(d == ON || d == i_direction)
+			return false;
+	}
+
+	return true;
+}
+
+template<typename T, std::size_t n_dimension>
+bool is_mouth(const polygon<T, n_dimension>& poly, std::size_t index)
+{
+	if(poly.size() < 4)
+		throw poly_hasnt_enough_vertex(poly.size(), 4);
+
+	if(!is_reflex(poly, index))
+		return false;
+
+	size_t next_index = (index + 1) % poly.size();
+	size_t prev_index = (index == 0)
+				? poly.size() - 1
+				: index - 1;
+
+	segment<T, n_dimension> seg = {
+		poly[prev_index],
+		poly[next_index]
+	};
+
+	direction i_direction = direction_in(seg, poly[index]);
+
+	for(	size_t i = (next_index + 1)%poly.size();
+		i != prev_index;
+		i = (i + 1)%poly.size())
+	{
+		direction d = direction_in(seg, poly[i]);
+		if(d == ON || d != i_direction)
+			return false;
+	}
+
+	return true;
+}
+
+
+
+/**
   * calculates the nearest point from a segment to a point
   */
 template<typename T, std::size_t n_dimension>

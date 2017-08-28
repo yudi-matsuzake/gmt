@@ -88,6 +88,18 @@ public:
 		return std::acos(this->dot_product(v)/(this->norm()*v.norm()));
 	}
 
+	double oriented_angle(void) const
+	{
+		vec<T, n_dimension> v;
+		v.x() = 1.0;
+
+		double m = 1.0;
+		if(this->y() < 0.0)
+			m = -1.0;
+			
+		return m*angle(v);
+	}
+
 	vec<T, n_dimension> escalation(const T& scale) const
 	{
 		vec<T, n_dimension> v;

@@ -3,6 +3,8 @@
 #include <vector>
 
 #include "point.hpp"
+#include "vec.hpp"
+#include "pi.hpp"
 
 namespace gmt {
 
@@ -14,6 +16,7 @@ public:
 
 	~polygon()
 	{}
+
 };
 
 typedef polygon<double, 2>	polygon2d;
