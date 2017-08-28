@@ -284,95 +284,21 @@ bool is_ear(const polygon<T, n_dimension>& poly, std::size_t index)
 				? poly.size() - 1
 				: index - 1;
 
-	vec<T, n_dimension> vprev(poly[index], poly[prev_index]); 
-	vec<T, n_dimension> vnext(poly[index], poly[next_index]);
-
-	double angle = angle_to_left(vprev, vnext);
-
-	segment<T, n_dimension> s0 = {
-		poly[prev_index],
-		poly[next_index]
-	};
-
-	if(angle > pi){
-
-		size_t prev_prev_index = (prev_index == 0)
-						? (poly.size() - 1)
-						: (prev_index - 1);
-		size_t next_next_index = (next_index + 1) % poly.size();
-
-		/*
-		 * check if the next_next vertice and the prev_prev
-		 * are has a bigger angle than the segment prev, next
-		 */
-		if(poly.size() > 3){
-
-			vec<T, n_dimension> vprev_next(
-				poly[prev_index],
-				poly[next_index]
-			);
-
-			vec<T, n_dimension> vprev(
-				poly[prev_index],
-				poly[index]
-			);
-
-			vec<T, n_dimension> vpprev(
-				poly[prev_index],
-				poly[prev_prev_index]
-			);
-
-			if(	angle_to_left(vprev, vprev_next)
-				> angle_to_left(vprev, vpprev)){
-				return false;
-			}
-
-			/*
-			 * because only if the poly has size bigger than 4
-			 * next_next !+ prev_prev
-			 */
-			if(poly.size() > 4){
-
-				vec<T, n_dimension> vnext_prev(
-					poly[next_index],
-					poly[prev_index]
-				);
-
-				vec<T, n_dimension> vnext(
-					poly[next_index],
-					poly[index]
-				);
-
-				vec<T, n_dimension> vnnext(
-					poly[next_index],
-					poly[next_next_index]
-				);
-
-				if(	angle_to_left(vnext, vnext_prev)
-					< angle_to_left(vnnext, vnext_prev)){
-					return false;
-				}
-
-			}
-
+	for(	std::size_t i = (next_index + 1)%poly.size();
+		i != prev_index;
+		i = (i+1)%poly.size())
+	{
+		if(	direction_in(poly[prev_index], poly[index], poly[i])
+				== LEFT
+			&& direction_in(poly[index], poly[next_index], poly[i])
+				== LEFT
+			&& direction_in(poly[next_index], poly[prev_index], poly[i])
+				== LEFT){
+			return false;
 		}
-
-		for(	size_t i = next_next_index;
-			i != prev_prev_index;
-			i = (i + 1)%poly.size())
-		{
-			segment<T, n_dimension> s1 = { poly[i], poly[(i+1)%poly.size()] };
-
-			if(intersect_proper(s0, s1)){
-				return false;
-			}
-
-		}
-
-		return true;
 	}
 
-	return false;
+	return true;
 }
 
 template<typename T, std::size_t n_dimension>
@@ -389,17 +315,18 @@ bool is_mouth(const polygon<T, n_dimension>& poly, std::size_t index)
 				? poly.size() - 1
 				: index - 1;
 
-	segment<T, n_dimension> s0(poly[prev_index], poly[next_index]);
-
-	for(	size_t i = next_index;
+	for(	std::size_t i = (next_index + 1)%poly.size();
 		i != prev_index;
-		i = (i + 1)%poly.size())
+		i = (i+1)%poly.size())
 	{
-		segment<T, n_dimension> s1 = { poly[i], poly[(i+1)%poly.size()] };
-
-		if(intersect_proper(s0, s1))
+		if(	direction_in(poly[prev_index], poly[index], poly[i])
+				== RIGHT
+			&& direction_in(poly[index], poly[next_index], poly[i])
+				== RIGHT
+			&& direction_in(poly[next_index], poly[prev_index], poly[i])
+				== RIGHT){
 			return false;
-
+		}
 	}
 
 	return true;
