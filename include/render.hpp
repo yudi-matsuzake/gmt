@@ -68,6 +68,11 @@ public:
 		glfwPollEvents();
 	}
 
+	void set_point_size(double size)
+	{
+		glPointSize(size);
+	}
+
 	void wait_events(double timeout = -1.0)
 	{
 		if(timeout == -1.0)

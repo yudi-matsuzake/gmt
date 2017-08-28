@@ -2,6 +2,7 @@
 
 #include <cstdlib>
 #include <cstring>
+#include <iostream>
 
 #include "exception.hpp"
 
@@ -159,6 +160,31 @@ public:
 		return true;
 	}
 
+	/** prints the string of a point on a ostream
+	  */
+	std::ostream& print(
+		std::ostream& o,
+		const std::string& pre = "(",
+		const std::string& pos = ")",
+		const std::string& sep = ", ") const
+	{
+		o << pre;
+
+		if(n_dimension > 0){
+			std::size_t i = 0;
+
+			if(n_dimension > 1){
+				for(; i< (n_dimension-1); i++)
+					o << this->at(i) << sep;
+			}
+
+			o << this->at(i);
+		}
+
+		o << pos;
+		return o;
+	}
+
 	/*
 	 * Operators --------------------------------------
 	 */
@@ -200,6 +226,13 @@ public:
 	bool operator!=(const point<T, n_dimension>& p) const
 	{
 		return !(this->is_equal(p));
+	}
+
+	friend std::ostream& operator<<(
+		std::ostream& o,
+		const point<T, n_dimension>& p)
+	{
+		return p.print(o);
 	}
 
 protected:
