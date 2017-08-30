@@ -56,28 +56,4 @@ public:
 	{}
 };
 
-class poly_hasnt_enough_vertex : public exception {
-public:
-	size_t has, need;
-
-	poly_hasnt_enough_vertex(size_t has, size_t need)
-	 : exception(get_msg(has, need)), has(has), need(need)
-	{}
-
-	~poly_hasnt_enough_vertex()
-	{}
-
-	static std::string get_msg(size_t has, size_t need)
-	{
-		std::ostringstream s;
-		s << "Poly has not enough vertices: has "
-		  << has
-		  << " and the method needed at least "
-		  << need
-		  << ".";
-
-		return s.str();
-	}
-};
-
 }
