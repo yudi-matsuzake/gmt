@@ -22,6 +22,10 @@ public:
 	vec()
 	{}
 
+	vec(const point<T, n_dimension>& p)
+		: point<T, n_dimension>(p)
+	{}
+
 	vec(const point<T, n_dimension>& p0, const point<T, n_dimension>& p1)
 	{
 

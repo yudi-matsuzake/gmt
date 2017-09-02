@@ -9,6 +9,7 @@
 #include "algorithm/direction.hpp"
 #include "algorithm/intersection.hpp"
 #include "algorithm/distance.hpp"
+#include "algorithm/linear-algebra.hpp"
 
 namespace gmt {
 

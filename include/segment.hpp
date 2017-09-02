@@ -1,7 +1,5 @@
 #pragma once
 
-#include <iostream>
-
 #include "point.hpp"
 
 namespace gmt{

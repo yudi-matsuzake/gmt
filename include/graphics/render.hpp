@@ -17,6 +17,16 @@ struct window_size {
 struct mouse_position {
 	double x;
 	double y;
+
+	friend std::ostream& operator<<(
+		std::ostream& o,
+		const mouse_position& mpos)
+	{
+		o	<< "mouse_position (x: " << mpos.x 
+			<< ", y: " << mpos.y << ")";
+		return o;
+	}
+
 };
 
 class render {

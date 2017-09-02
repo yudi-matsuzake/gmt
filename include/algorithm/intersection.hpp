@@ -2,6 +2,8 @@
 
 #include "polygon.hpp"
 #include "direction.hpp"
+#include "line.hpp"
+#include "algorithm/linear-algebra.hpp"
 
 namespace gmt{ 
 
@@ -106,6 +108,65 @@ intersection::type intersect(
 		return intersection::IMPROPER;
 	
 	return intersection::NONE;
+}
+
+/*
+ * resolve the scalars s and t where the lines l0 and l1
+ * intersects where l0 = v0 + s*v1 and l1 = v2 + t*v3
+ */
+template<typename T, std::size_t n_dimension>
+mat<T, n_dimension, 1> resolve_scalars(
+	const line<T, n_dimension>& l0,
+	const line<T, n_dimension>& l1)
+{
+	mat<T, n_dimension, 2> m;
+	mat<T, n_dimension, 1> b;
+
+	/*
+	 * builds the coefficient matrix
+	 */
+	for(size_t i=0; i<m.rows(); i++){
+		m[i][0] = l0.sense[i];
+		m[i][1] = -(l1.sense[i]);
+		b[i][0] = l1.shift[i] - l0.shift[i];
+	}
+
+	return resolve(m, b);
+}
+
+/*
+ * finds the point of intersection between a line
+ * and a segment
+ */
+template<typename T, std::size_t n_dimension>
+point<T, n_dimension> point_of_intersection(
+	const line<T, n_dimension>& l,
+	const segment<T, n_dimension>& seg)
+try{
+	line<T, n_dimension> line_segment(seg);
+	mat<T, n_dimension, 1> x = resolve_scalars(l, line_segment);
+
+	T s = x[1][0];
+
+	if(s < 0.0 || s > 1.0)
+		throw line_does_not_intersect_segment();
+
+	return l.point_on_line_at(x[0][0]);
+}catch(system_has_no_solution<T, n_dimension, 2>& e){
+	throw line_does_not_intersect_segment();
+}
+
+/*
+ * finds the point of intersection between two lines
+ */
+template<typename T, std::size_t n_dimension>
+point<T, n_dimension> point_of_intersection(
+	const line<T, n_dimension>& l0,
+	const line<T, n_dimension>& l1)
+{
+	mat<T, n_dimension, 1> x = resolve_scalars(l0, l1);
+
+	return l0.point_on_line_at(x[0][0]);
 }
 
 }

@@ -2,7 +2,6 @@
 
 #include <cstdlib>
 #include <cstring>
-#include <iostream>
 
 #include "exception.hpp"
 
@@ -211,6 +210,15 @@ public:
 	point<T, n_dimension> operator-(const point<T, n_dimension>& p) const
 	{
 		return this->subtraction(p);
+	}
+
+	point<T, n_dimension> operator-() const
+	{
+		point<T, n_dimension> p;
+		for(size_t i=0; i<n_dimension; i++)
+			p[i] = -(*this)[i];
+
+		return p;
 	}
 
 	point<T, n_dimension> operator-=(const point<T, n_dimension>& p)

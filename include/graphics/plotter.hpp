@@ -6,6 +6,8 @@
 #include "render.hpp"
 #include "segment.hpp"
 #include "polygon.hpp"
+#include "line.hpp"
+#include "algorithm/intersection.hpp"
 
 namespace gmt {
 
@@ -94,6 +96,21 @@ public:
 		glEnd();
 	}
 
+	template<typename G>
+	void plot(const std::vector<G>& l)
+	{
+		for( const auto& p : l )
+			plot(p);
+	}
+
+	template<typename G>
+	void plot(const std::vector<G>& l, GLenum mode)
+	{
+		glBegin(mode);
+		plot(l);
+		glEnd();
+	}
+
 	void plot(const point<double, 2>& p)
 	{
 		glVertex2d(p.x(), p.y());
@@ -109,6 +126,68 @@ public:
 	{
 		for(const auto& p : poly)
 			plot(p);
+	}
+
+	/*
+	 * TODO: get values from opengl viewport
+	 */
+	void plot(const line2d& line)
+	{
+		window_size winsiz = get_window_size();
+
+		/*
+		 * create top-left (tf), top-right (tr), bottom-left (bl)
+		 * and bottom-right (br) points
+		 */
+		point2d tl = { 0.0, 0.0 };
+		point2d tr = { static_cast<double>(winsiz.width), 0.0 };
+		point2d bl = { 0.0, static_cast<double>(winsiz.height) };
+		point2d br = {
+			static_cast<double>(winsiz.width),
+			static_cast<double>(winsiz.height)
+		};
+
+		/*
+		 * top, bottom, left and right lines
+		 */
+		segment2d viewport[4] = {
+			segment2d(tl, tr),
+			segment2d(bl, br),
+			segment2d(tl, bl),
+			segment2d(tr, br)
+		};
+
+		point2d intersection;
+		point2d last_intersection;
+
+		glPointSize(5);
+		size_t intersection_count = 0;
+		try{
+			intersection = point_of_intersection(line, viewport[0]);
+			intersection_count++;
+		}catch(line_does_not_intersect_segment& e){}
+
+		for(int i=1; i<4; i++){
+			last_intersection = intersection;
+
+			try{
+				intersection = point_of_intersection(
+						line,
+						viewport[i]);
+
+				intersection_count++;
+			}catch(line_does_not_intersect_segment& e){}
+
+			if(intersection_count == 2
+				&& last_intersection != intersection){
+				break;
+			}
+		}
+
+		if(intersection_count == 2){
+			segment2d s(intersection, last_intersection);
+			plot(s);
+		}
 	}
 
 	void renderize()
