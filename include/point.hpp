@@ -159,6 +159,17 @@ public:
 		return true;
 	}
 
+	bool is_equal(const T& value) const
+	{
+		for(std::size_t i=0; i<n_dimension; i++){
+			if((*this)[i] != value)
+				return false;
+		}
+
+		return true;
+	}
+
+
 	/** prints the string of a point on a ostream
 	  */
 	std::ostream& print(
@@ -234,6 +245,16 @@ public:
 	bool operator!=(const point<T, n_dimension>& p) const
 	{
 		return !(this->is_equal(p));
+	}
+
+	bool operator==(const T& value) const
+	{
+		return this->is_equal(value);
+	}
+
+	bool operator!=(const T& value) const
+	{
+		return this->is_equal(value);
 	}
 
 	friend std::ostream& operator<<(

@@ -10,6 +10,7 @@
 #include "algorithm/intersection.hpp"
 #include "algorithm/distance.hpp"
 #include "algorithm/linear-algebra.hpp"
+#include "algorithm/polygon-visibility.hpp"
 
 namespace gmt {
 

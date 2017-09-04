@@ -128,6 +128,22 @@ public:
 			plot(p);
 	}
 
+	void plot(const std::vector<polygon2d>& l, GLenum mode)
+	{
+		glBegin(mode);
+		for(const auto& p : l)
+			plot(p, mode);
+		glEnd();
+	}
+
+	void plot(const std::list<polygon2d>& l, GLenum mode)
+	{
+		glBegin(mode);
+		for(const auto& p : l)
+			plot(p, mode);
+		glEnd();
+	}
+
 	/*
 	 * TODO: get values from opengl viewport
 	 */
@@ -212,6 +228,8 @@ public:
 	static const class color green;
 	static const class color blue;
 	static const class color yellow;
+	static const class color gray;
+	static const class color grey;
 
 };
 
@@ -221,6 +239,8 @@ const color plotter::red(1.0, 0.0, 0.0, 1.0);
 const color plotter::green(0.0, 1.0, 0.0, 1.0);
 const color plotter::blue(0.0, 0.0, 1.0, 1.0);
 const color plotter::yellow(1.0, 1.0, 0.0, 1.0);
+const color plotter::gray(0.5, 0.5, 0.5, 1.0);
+const color plotter::grey(0.5, 0.5, 0.5, 1.0);
 
 
 }

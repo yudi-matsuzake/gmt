@@ -14,6 +14,13 @@ public:
 	polygon()
 	{}
 
+	polygon(const std::initializer_list<point<T, n_dimension>>& l)
+	{
+		for(auto& i : l)
+			this->push_back(i);
+	}
+
+
 	~polygon()
 	{}
 

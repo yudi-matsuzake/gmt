@@ -220,6 +220,13 @@ private:
 		ui_render* render = get_render_by_window(window);
 		render->on_scroll(xoffset, yoffset);
 	}
+
+	static void window_size_callback(GLFWwindow* window, int width, int height)
+	{
+		ui_render* render = get_render_by_window(window);
+		render->on_window_size(width, height);
+	}
+
 public:
 	ui_render( const std::string& title = "Render",
 		int width = 800,
@@ -239,6 +246,7 @@ public:
 		glfwSetCursorEnterCallback(this->window.get(), cursor_enter_callback);
 		glfwSetMouseButtonCallback(this->window.get(), mouse_button_callback);
 		glfwSetScrollCallback(this->window.get(), scroll_callback);
+		glfwSetWindowSizeCallback(this->window.get(), window_size_callback);
 
 	}
 
@@ -289,6 +297,9 @@ public:
 	{}
 
 	virtual void on_scroll(double, double)
+	{}
+
+	virtual void on_window_size(int, int)
 	{}
 
 };

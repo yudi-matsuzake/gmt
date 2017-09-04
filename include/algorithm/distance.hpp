@@ -35,8 +35,8 @@ point<T, n_dimension> nearest_point(
   */
 template<typename T, std::size_t n_dimension>
 double distance(
-const point<T, n_dimension>& p0,
-const point<T, n_dimension>& p1)
+	const point<T, n_dimension>& p0,
+	const point<T, n_dimension>& p1)
 {
 	vec<T, n_dimension> v(p0, p1);
 	return v.norm();

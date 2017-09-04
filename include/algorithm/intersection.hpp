@@ -110,6 +110,28 @@ intersection::type intersect(
 	return intersection::NONE;
 }
 
+template<typename T, std::size_t n_dimension>
+intersection::type intersect(
+	const line<T, n_dimension>& l,
+	const segment<T, n_dimension>& seg)
+try{
+	line<T, n_dimension> line_segment(seg);
+	mat<T, n_dimension, 1> x = resolve_scalars(l, line_segment);
+
+	T s = x[1][0];
+
+	if(s < 0.0 || s > 1.0)
+		return intersection::NONE;
+
+	if(s == 0.0 || s == 1.0)
+		return intersection::IMPROPER;
+
+	return intersection::PROPER;
+}catch(system_has_no_solution<T, n_dimension, 2>& e){
+	return intersection::NONE;
+}
+
+
 /*
  * resolve the scalars s and t where the lines l0 and l1
  * intersects where l0 = v0 + s*v1 and l1 = v2 + t*v3
