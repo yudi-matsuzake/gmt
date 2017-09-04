@@ -30,22 +30,26 @@ public:
 		const vec<T, n_dimension>& v0,
 		const vec<T, n_dimension>& v1)
 	{
-		if(v0 == 0.0)
+		bool v0_above_xaxis = v0.x() >= 0.0;
+		bool v1_above_xaxis = v1.x() >= 0.0;
+
+		if(v0_above_xaxis == v1_above_xaxis){
+			switch(direction_in(v0, v1, 1.0)){
+			case RIGHT:
+				return true;
+				break;
+			case LEFT:
+				return false;
+				break;
+			case ON:
+				return true;
+				break;
+			}
+		}else if(v0_above_xaxis){
 			return true;
-		if(v1 == 0.0)
-			return false;
+		}
 
-		vec<T, n_dimension> x = x_axis();
-
-		double v0_angle = angle_to_left(x, v0);
-		double v1_angle = angle_to_left(x, v1);
-
-		if(fabs(v0_angle - v1_angle) <= 0.0005)
-			return false;
-		return v0_angle < v1_angle;
-
-		/* direction d = direction_in(v0, v1); */
-		/* return d == LEFT; */
+		return false;
 	}
 };
 
