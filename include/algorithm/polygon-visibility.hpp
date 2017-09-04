@@ -39,6 +39,9 @@ public:
 
 		double v0_angle = angle_to_left(x, v0);
 		double v1_angle = angle_to_left(x, v1);
+
+		if(fabs(v0_angle - v1_angle) <= 0.0005)
+			return false;
 		return v0_angle < v1_angle;
 
 		/* direction d = direction_in(v0, v1); */
@@ -46,9 +49,14 @@ public:
 	}
 };
 
+/*
+ * returns 0 if the rays not continues
+ * return 1 if the rays continue to the left
+ * return 2 if the rays continue to the right
+ */
 template<typename T, std::size_t n_dimension>
-bool ray_continues(
-	const line<T, n_dimension>& l,
+int ray_continues(
+	const point<T, n_dimension>& p,
 	const polygon<T, n_dimension>& poly,
 	const size_t index)
 {
@@ -57,25 +65,41 @@ bool ray_continues(
 				? poly.size()-1
 				: index-1;
 
-	segment<T, n_dimension> s(
-		poly[next_index],
-		poly[prev_index]
+	direction dnext = direction_in(
+			p,
+			poly[index],
+			poly[next_index]
 	);
 
-	return intersect(l, s) != intersection::PROPER;
+	direction dprev = direction_in(
+			p,
+			poly[index],
+			poly[prev_index]
+	);
+
+	if(dnext != dprev || dnext == ON)
+		return 0;
+
+	if(dnext == LEFT)
+		return 1;
+	return 2;
+
 }
 
 template <typename T, std::size_t n_dimension>
-point<T, n_dimension> cast_ray(
+void cast_ray(
 	const point<T, n_dimension>& p,
 	const std::vector<polygon<T, n_dimension>>& poly_list,
 	size_t poly_index,
-	size_t vertex_index)
+	size_t vertex_index,
+	std::vector<vec<T, n_dimension>>& rays)
 {
 	line<T, n_dimension> l(p, poly_list[poly_index][vertex_index]);
 
 	T min = -1;
 	point<T, n_dimension> closest;
+
+	int ray_continuation = 0;
 
 	for(size_t i=0; i<poly_list.size(); i++){
 		for(size_t j=1; j<=poly_list[i].size(); j++){
@@ -99,12 +123,16 @@ point<T, n_dimension> cast_ray(
 				}
 
 				if(i == poly_index && (p0 == vertex_index
-					|| p1 == vertex_index)
-					&& ray_continues(
-						l,
-						poly_list[i],
-						vertex_index)){
-					continue;
+					|| p1 == vertex_index)){
+
+					ray_continuation = ray_continues(
+								p,
+								poly_list[i],
+								vertex_index
+					);
+
+					if(ray_continuation > 0)
+						continue;
 				}
 
 				T d = distance(p, intersection);
@@ -117,7 +145,24 @@ point<T, n_dimension> cast_ray(
 		}
 	}
 
-	return closest;
+	/* rays.push_back(closest - p); */
+	if(ray_continuation == 0){
+		rays.push_back(closest - p);
+	}else{
+		vec<T, n_dimension> c = closest - p;
+		vec<T, n_dimension> v =
+			poly_list[poly_index][vertex_index] - p;
+
+		if(ray_continuation == 1){
+			rays.push_back(c);
+			if(v.norm() < c.norm())
+				rays.push_back(v);
+		}else{
+			if(v.norm() < c.norm())
+				rays.push_back(v);
+			rays.push_back(c);
+		}
+	}
 }
 
 
@@ -131,21 +176,7 @@ polygon<T, n_dimension> polygon_visibility(
 
 	for(size_t i=0; i<poly_list.size(); i++){
 		for(size_t j=0; j<poly_list[i].size(); j++){
-
-			point<T, n_dimension> closest;
-			closest = cast_ray(p, poly_list, i, j);
-
-/* 			if(closest != poly_list[i][j] */
-/* 				&& !is_between<T, n_dimension>(p, poly_list[i][j], closest)){ */
-
-/* 				rays.push_back(poly_list[i][j] - p); */
-/* 				rays.push_back(closest - p); */
-/* 			}else{ */
-/* 				rays.push_back(closest - p); */
-/* 			} */
-
-			rays.push_back(closest - p);
-
+			cast_ray(p, poly_list, i, j, rays);
 		}
 	}
 
