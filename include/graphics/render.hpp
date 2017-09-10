@@ -91,6 +91,11 @@ public:
 			glfwWaitEventsTimeout(timeout);
 	}
 
+	double get_time()
+	{
+		return glfwGetTime();
+	}
+
 	window_size get_window_size()
 	{
 		int w, h;

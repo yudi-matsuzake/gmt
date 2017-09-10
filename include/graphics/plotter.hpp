@@ -19,6 +19,11 @@ public:
 
 	~color(){};
 
+	inline color operator*(double s) const
+	{
+		return color(r*s, g*s, b*s, a);
+	}
+
 	double r, g, b, a;
 };
 
@@ -218,6 +223,26 @@ public:
 		glLoadIdentity();
 
 		draw();
+	}
+
+	/*
+	 * get mouse point based on gmt::point2d,
+	 * limited by the window size
+	 */
+	gmt::point2d get_mouse_point()
+	{
+		gmt::mouse_position m = get_mouse_position();
+		gmt::window_size w = get_window_size();
+
+		m.y = w.height - m.y;
+
+		m.x = (m.x < 0.0) ? 0.0 : m.x;
+		m.y = (m.y < 0.0) ? 0.0 : m.y;
+
+		m.x = (m.x > w.width) ? w.width : m.x;
+		m.y = (m.y > w.height) ? w.height : m.y;
+
+		return gmt::point2d{ m.x, m.y };
 	}
 
 	virtual void draw() = 0;

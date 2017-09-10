@@ -11,8 +11,7 @@ namespace gmt {
   * Describes a euclidean point of arbitrary number of dimension.
   */
 template<typename T = double, std::size_t n_dimension = 2>
-class point
-{
+class point {
 public:
 
 	/**
