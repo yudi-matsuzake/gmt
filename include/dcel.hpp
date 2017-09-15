@@ -387,7 +387,17 @@ public:
 		return edges[index].get();
 	}
 
+	const edge* edge_at(size_t index) const
+	{
+		return edges[index].get();
+	}
+
 	vertex* vertex_at(size_t index)
+	{
+		return vertices[index].get();
+	}
+
+	const vertex* vertex_at(size_t index) const
 	{
 		return vertices[index].get();
 	}
@@ -396,6 +406,12 @@ public:
 	{
 		return faces[index].get();
 	}
+
+	const face* face_at(size_t index) const
+	{
+		return faces[index].get();
+	}
+
 
 	size_t n_edge() const
 	{

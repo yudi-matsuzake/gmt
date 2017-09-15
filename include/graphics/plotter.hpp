@@ -7,6 +7,7 @@
 #include "segment.hpp"
 #include "polygon.hpp"
 #include "line.hpp"
+#include "dcel.hpp"
 #include "algorithm/intersection.hpp"
 
 namespace gmt {
@@ -24,11 +25,55 @@ public:
 		return color(r*s, g*s, b*s, a);
 	}
 
+	inline color operator/(double s) const
+	{
+		return color(r/s, g/s, b/s, a);
+	}
+
+
 	double r, g, b, a;
 };
 
 class plotter : public ui_render {
+private:
+	/*
+	 * auxiliar functions
+	 */
+	void plot_dcel_vertices(const gmt::dcel2d& d, GLenum mode)
+	{
+		begin(mode);
+		for(size_t i=0; i<d.n_vertex(); i++)
+			plot(d.vertex_at(i));
+		end();
+	}
+
+	void plot_dcel_edges(const gmt::dcel2d& d, GLenum mode)
+	{
+		for(size_t i=0; i<d.n_edge(); i++){
+			begin(mode);
+			plot(d.edge_at(i));
+			plot(d.edge_at(i));
+			end();
+		}
+	}
+
+	void plot_dcel_faces(const gmt::dcel2d& d, GLenum mode)
+	{
+		for(size_t i=0; i<d.n_face(); i++){
+			begin(mode);
+			plot(d.face_at(i));
+			plot(d.face_at(i));
+			end();
+		}
+	}
+
 public:
+
+	typedef enum {
+		VERTICES,
+		EDGES,
+		FACES
+	} component;
 
 	plotter( const std::string& title = "Plotter",
 		int width = 800,
@@ -208,6 +253,61 @@ public:
 		if(intersection_count == 2){
 			segment2d s(intersection, last_intersection);
 			plot(s);
+		}
+	}
+
+	/*
+	 * dcel plots
+	 */
+	void plot(const typename gmt::dcel2d::vertex* v)
+	{
+		plot(v->data);
+	}
+
+	void plot(const typename gmt::dcel2d::edge* e)
+	{
+		plot(e->origin);
+		plot(e->destination);
+	}
+
+	void plot(const typename gmt::dcel2d::face* f)
+	{
+		if(f){
+			typename gmt::dcel2d::edge* e = f->incident_edge;
+			if(e){
+				do{
+					plot(e->origin);
+					e = e->next;
+				}while(e != f->incident_edge);
+			}
+		}
+	}
+
+	void plot(const typename gmt::dcel2d::face* f, GLenum mode)
+	{
+		begin(mode);
+		plot(f);
+		end();
+	}
+
+	/*
+	 * plot the dcel structure choosing a component
+	 */
+	void plot(
+		const gmt::dcel2d& dcel,
+		component c,
+		GLenum mode)
+	{
+		switch(c){
+		case VERTICES:
+			plot_dcel_vertices(dcel, mode);
+			break;
+		case EDGES:
+			plot_dcel_edges(dcel, mode);
+			break;
+		case FACES:
+			plot_dcel_faces(dcel, mode);
+			break;
 		}
 	}
 

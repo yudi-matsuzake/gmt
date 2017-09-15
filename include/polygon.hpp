@@ -20,7 +20,6 @@ public:
 			this->push_back(i);
 	}
 
-
 	~polygon()
 	{}
 
