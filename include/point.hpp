@@ -131,6 +131,28 @@ public:
 			(*this)[i] += p[i];
 	}
 
+	/**
+	  * @brief divide point with the scalar
+	  */
+	point<T, n_dimension> division(const T& scalar) const
+	{
+		point<T, n_dimension> r;
+
+		for(size_t i=0; i<n_dimension; i++)
+			r[i] = at(i) / scalar;
+
+		return r;
+	}
+
+	/**
+	  * @brief divide this point with the scalar
+	  */
+	void divide(const T& scalar)
+	{
+		for(size_t i=0; i<n_dimension; i++)
+			(*this)[i] /= scalar;
+	}
+
 	/** Check if the point contains only zeros.
 	  *
 	  * @return true in case the point is zero or false otherwise
@@ -214,7 +236,8 @@ public:
 
 	point<T, n_dimension> operator+=(const point<T, n_dimension>& p)
 	{
-		return this->add(p);
+		this->add(p);
+		return *this;
 	}
 
 	point<T, n_dimension> operator-(const point<T, n_dimension>& p) const
@@ -231,9 +254,22 @@ public:
 		return p;
 	}
 
+	point<T, n_dimension> operator/(const T& scalar) const
+	{
+		return this->division(scalar);
+	}
+
+	point<T, n_dimension> operator/=(const T& scalar)
+	{
+		this->divide(scalar);
+		return *this;
+	}
+
+
 	point<T, n_dimension> operator-=(const point<T, n_dimension>& p)
 	{
-		return this->subtract(p);
+		this->subtract(p);
+		return *this;
 	}
 
 	bool operator==(const point<T, n_dimension>& p) const

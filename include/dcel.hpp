@@ -412,7 +412,6 @@ public:
 		return faces[index].get();
 	}
 
-
 	size_t n_edge() const
 	{
 		return edges.size();

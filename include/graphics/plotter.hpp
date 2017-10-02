@@ -311,8 +311,9 @@ public:
 		}
 	}
 
-	void renderize()
+	virtual void reshape()
 	{
+
 		gmt::window_size s = get_window_size();
 
 		glViewport(0, 0, s.width, s.height);
@@ -322,6 +323,11 @@ public:
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 
+	}
+
+	void renderize()
+	{
+		reshape();
 		draw();
 	}
 

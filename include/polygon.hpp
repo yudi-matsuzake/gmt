@@ -8,6 +8,9 @@
 
 namespace gmt {
 
+/**
+  * simple polygon
+  */
 template<typename T, std::size_t n_dimension>
 class polygon : public std::vector<point<T, n_dimension>> {
 public:
