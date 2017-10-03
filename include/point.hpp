@@ -153,6 +153,28 @@ public:
 			(*this)[i] /= scalar;
 	}
 
+	/**
+	  * @brief multiply the point with a scalar
+	  */
+	point<T, n_dimension> multiplication(const T& scalar) const
+	{
+		point<T, n_dimension> r;
+
+		for(size_t i=0; i<n_dimension; i++)
+			r[i] = at(i)*scalar;
+
+		return r;
+	}
+
+	/**
+	  * @brief multiply this point with the scalar
+	  */
+	void multiply(const T& scalar)
+	{
+		for(size_t i=0; i<n_dimension; i++)
+			(*this)[i] *= scalar;
+	}
+
 	/** Check if the point contains only zeros.
 	  *
 	  * @return true in case the point is zero or false otherwise
@@ -245,6 +267,12 @@ public:
 		return this->subtraction(p);
 	}
 
+	point<T, n_dimension> operator-=(const point<T, n_dimension>& p)
+	{
+		this->subtract(p);
+		return *this;
+	}
+
 	point<T, n_dimension> operator-() const
 	{
 		point<T, n_dimension> p;
@@ -265,10 +293,14 @@ public:
 		return *this;
 	}
 
-
-	point<T, n_dimension> operator-=(const point<T, n_dimension>& p)
+	point<T, n_dimension> operator*(const T& d) const
 	{
-		this->subtract(p);
+		return multiplication(d);
+	}
+
+	point<T, n_dimension>& operator*=(const T& d) const
+	{
+		multiply(d);
 		return *this;
 	}
 

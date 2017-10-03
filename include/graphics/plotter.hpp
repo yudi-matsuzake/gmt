@@ -85,7 +85,7 @@ public:
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
 
-	~plotter()
+	virtual ~plotter()
 	{}
 
 	void clear(GLbitfield mask = GL_COLOR_BUFFER_BIT)
@@ -335,7 +335,7 @@ public:
 	 * get mouse point based on gmt::point2d,
 	 * limited by the window size
 	 */
-	gmt::point2d get_mouse_point()
+	virtual gmt::point2d get_mouse_point()
 	{
 		gmt::mouse_position m = get_mouse_position();
 		gmt::window_size w = get_window_size();
