@@ -129,15 +129,18 @@ public:
 		gmt::mouse_position m = get_mouse_position();
 		gmt::window_size w = get_window_size();
 
-		m.y = w.height - m.y;
+		m.x *= ortho.width/w.width;
+		m.y *= ortho.height/w.height;
+
+		m.y = ortho.height - m.y;
 
 		m.x = (m.x < 0.0) ? 0.0 : m.x;
 		m.y = (m.y < 0.0) ? 0.0 : m.y;
 
-		m.x = (m.x > w.width) ? w.width : m.x;
-		m.y = (m.y > w.height) ? w.height : m.y;
+		m.x = (m.x > ortho.width) ? ortho.width : m.x;
+		m.y = (m.y > ortho.height) ? ortho.height : m.y;
 
-		return gmt::point2d{ m.x, m.y };
+		return gmt::point2d{ m.x, m.y } + ortho.pos;
 	}
 
 };
