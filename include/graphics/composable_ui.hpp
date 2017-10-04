@@ -31,8 +31,8 @@ public:
 		viewport.height = winsiz.height;
 
 		ortho.pos = { 0.0, 0.0 };
-		ortho.width = ortho.width;
-		ortho.height = ortho.height;
+		ortho.width = viewport.width;
+		ortho.height = viewport.height;
 	}
 
 	virtual ~composable_ui()
@@ -48,10 +48,10 @@ public:
 	{
 
 		gmt::window_size s = get_window_size();
-		viewport.pos.x() = ortho.pos.x() = 0.0;
-		viewport.pos.y() = ortho.pos.y() = 0.0;
-		viewport.width = ortho.width = s.width;
-		viewport.height = ortho.height = s.height;
+		viewport.pos.x() = 0.0;
+		viewport.pos.y() =  0.0;
+		viewport.width = s.width;
+		viewport.height = s.height;
 
 		for(auto& component : component_list)
 			component->reshape(*this, s, viewport, ortho);
@@ -121,26 +121,38 @@ public:
 	}
 
 	/*
-	 * get mouse point based on gmt::point2d,
+	 * get mouse point based on gmt::point2d
+	 * limited by the window size and ortho
+	 */
+	virtual gmt::point2d get_mouse_point(double x, double y)
+	{
+		gmt::window_size w = get_window_size();
+
+		y = w.height - y;
+		x = (x < 0.0) ? 0.0 : x;
+		y = (y < 0.0) ? 0.0 : y;
+		x = (x > w.width) ? w.width : x;
+		y = (y > w.height) ? w.height : y;
+
+		x *= ortho.width/w.width;
+		y *= ortho.height/w.height;
+
+		return ortho.pos + gmt::point2d{ x, y };
+	}
+
+	/*
+	 * get mouse point based on gmt::point2d
 	 * limited by the window size and ortho
 	 */
 	virtual gmt::point2d get_mouse_point()
 	{
 		gmt::mouse_position m = get_mouse_position();
-		gmt::window_size w = get_window_size();
+		return get_mouse_point(m.x, m.y);
+	}
 
-		m.x *= ortho.width/w.width;
-		m.y *= ortho.height/w.height;
-
-		m.y = ortho.height - m.y;
-
-		m.x = (m.x < 0.0) ? 0.0 : m.x;
-		m.y = (m.y < 0.0) ? 0.0 : m.y;
-
-		m.x = (m.x > ortho.width) ? ortho.width : m.x;
-		m.y = (m.y > ortho.height) ? ortho.height : m.y;
-
-		return gmt::point2d{ m.x, m.y } + ortho.pos;
+	virtual gmt::rect2d& get_ortho()
+	{
+		return ortho;
 	}
 
 };

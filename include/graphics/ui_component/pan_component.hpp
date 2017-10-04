@@ -1,8 +1,9 @@
 #pragma once
 
+#include <mutex>
+
 #include "graphics/composable_ui.hpp"
 #include "ui_component.hpp"
-#include <iostream>
 
 namespace gmt {
 
@@ -14,13 +15,13 @@ private:
 	}pan_state;
 
 	pan_state state;
-	gmt::point2d reference_point;
-	gmt::point2d pan;
-	bool pressed;
+	gmt::point2d first_point;
+	gmt::vec2d pan;
+	bool is_pressed;
 
 public:
 	pan_component()
-		: state(WAIT_FIRST), pressed(false)
+		: state(WAIT_FIRST), is_pressed(false)
 	{}
 
 	~pan_component()
@@ -32,6 +33,7 @@ public:
 				rect2d& ortho)
 	{
 		ortho.pos += pan;
+		pan = { 0.0, 0.0 };
 	}
 
 	virtual void on_mouse_button(	composable_ui& ui,
@@ -42,28 +44,29 @@ public:
 		if(button == GLFW_MOUSE_BUTTON_MIDDLE){
 
 			if(action == GLFW_PRESS){
-				pressed = true;
+				is_pressed = true;
+
 				if(state == WAIT_FIRST){
 					state = PAN;
-					reference_point = ui.get_mouse_point();
+					first_point = ui.get_mouse_point();
 				}
 
-				pan += reference_point - ui.get_mouse_point();
 			}else if(action == GLFW_RELEASE){
-				pressed = false;
+				is_pressed = false;
+
 				state = WAIT_FIRST;
+				pan = { ui.get_mouse_point(), first_point };
 			}
 		}
 	}
 
 	virtual void on_mouse_position(	composable_ui& ui,
-					double,
-					double)
+					double x,
+					double y)
 	{
-		if(pressed)
-			pan += reference_point - ui.get_mouse_point();
+		if(is_pressed)
+			pan = { ui.get_mouse_point(x, y), first_point };
 	}
-
 
 };
 
