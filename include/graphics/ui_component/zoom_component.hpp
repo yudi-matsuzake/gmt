@@ -16,7 +16,7 @@ public:
 	~zoom_component()
 	{}
 
-	virtual void reshape(	composable_ui&,
+	virtual void reshape(	composable_ui& ui,
 				const gmt::window_size&,
 				rect2d&,
 				rect2d& ortho)
@@ -24,15 +24,15 @@ public:
 		if(update){
 			update = false;
 
-			double old_ortho_w = ortho.width;
-			double old_ortho_h = ortho.height;
+			point2d m0 = ui.get_mouse_point();
+
 			ortho.width = ortho.width*scale;
 			ortho.height = ortho.height*scale;
 
-			double wdiff = (old_ortho_w - ortho.width)/2.0;
-			double hdiff = (old_ortho_h - ortho.height)/2.0;
-			ortho.pos.x() += wdiff;
-			ortho.pos.y() += hdiff;
+			point2d m1 = ui.get_mouse_point();
+			vec2d translation = { m0, m1 };
+
+			ortho.pos -= translation;
 		}
 	}
 
