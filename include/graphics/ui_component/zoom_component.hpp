@@ -5,12 +5,11 @@
 namespace gmt {
 
 class zoom_component : public ui_component {
-private:
+protected:
 	double scale, step;
 	bool update;
 public:
-	zoom_component(
-		double step = 0.1)
+	zoom_component(double step = 0.1)
 		: scale(1.0), step(step), update(false)
 	{}
 
@@ -42,8 +41,8 @@ public:
 				double y)
 	{
 		scale = 1.0 + step*y*(-1.0);
-		/* scale *= tmp; */
-		update = true;
+		if(y != 0.0)
+			update = true;
 	}
 
 };

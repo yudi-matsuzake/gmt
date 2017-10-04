@@ -115,6 +115,11 @@ public:
 		return *this;
 	}
 
+	vec<T, n_dimension> versor() const
+	{
+		return this->division(this->norm());
+	}
+
 };
 
 typedef vec<double,	2> vec2d;
