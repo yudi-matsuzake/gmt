@@ -7,31 +7,73 @@
 #include "segment.hpp"
 #include "polygon.hpp"
 #include "line.hpp"
-#include "dcel.hpp"
+#include "dcel/dcelp.hpp"
 #include "algorithm/intersection.hpp"
 
 namespace gmt {
 
-class color {
+class color : public gmt::point4d {
 public:
+
+	color(const gmt::point4d& p)
+	{
+		at(0) = p[0];
+		at(1) = p[1];
+		at(2) = p[2];
+		at(3) = p[3];
+	}
+
 	color(double r = 0.0, double g = 0.0, double b = 0.0, double a = 0.0)
-		: r(r), g(g), b(b), a(a)
-	{}
+	{
+		at(0) = r;
+		at(1) = g;
+		at(2) = b;
+		at(3) = a;
+	}
 
 	~color(){};
 
-	inline color operator*(double s) const
+	inline double r() const
 	{
-		return color(r*s, g*s, b*s, a);
+		return at(0);
 	}
 
-	inline color operator/(double s) const
+	inline double g() const
 	{
-		return color(r/s, g/s, b/s, a);
+		return at(1);
+	}
+
+	inline double b() const
+	{
+		return at(2);
+	}
+
+	inline double a() const
+	{
+		return at(3);
 	}
 
 
-	double r, g, b, a;
+	inline double r()
+	{
+		return at(0);
+	}
+
+	inline double g()
+	{
+		return at(1);
+	}
+
+	inline double b()
+	{
+		return at(2);
+	}
+
+	inline double a()
+	{
+		return at(3);
+	}
+
 };
 
 class plotter : public ui_render {
@@ -39,7 +81,7 @@ private:
 	/*
 	 * auxiliar functions
 	 */
-	void plot_dcel_vertices(const gmt::dcel2d& d, GLenum mode)
+	void plot_dcel_vertices(const gmt::dcel2d& d, GLenum mode) const
 	{
 		begin(mode);
 		for(size_t i=0; i<d.n_vertex(); i++)
@@ -47,7 +89,7 @@ private:
 		end();
 	}
 
-	void plot_dcel_edges(const gmt::dcel2d& d, GLenum mode)
+	void plot_dcel_edges(const gmt::dcel2d& d, GLenum mode) const
 	{
 		for(size_t i=0; i<d.n_edge(); i++){
 			begin(mode);
@@ -57,7 +99,7 @@ private:
 		}
 	}
 
-	void plot_dcel_faces(const gmt::dcel2d& d, GLenum mode)
+	void plot_dcel_faces(const gmt::dcel2d& d, GLenum mode) const
 	{
 		for(size_t i=0; i<d.n_face(); i++){
 			begin(mode);
@@ -83,48 +125,49 @@ public:
 		: ui_render(title, width, height, monitor, share)
 	{
 		glClear(GL_COLOR_BUFFER_BIT);
+		glEnable(GL_BLEND);
 	}
 
 	virtual ~plotter()
 	{}
 
-	void clear(GLbitfield mask = GL_COLOR_BUFFER_BIT)
+	void clear(GLbitfield mask = GL_COLOR_BUFFER_BIT) const
 	{
 		glClear(mask);
 	}
 
-	void clear_color(const color& c)
+	void clear_color(const color& c) const
 	{
-		clear_color(c.r, c.g, c.b, c.a);
+		clear_color(c.r(), c.g(), c.b(), c.a());
 	}
 
-	void clear_color(double r, double g, double b, double a = 1.0)
+	void clear_color(double r, double g, double b, double a = 1.0) const
 	{
 		glClearColor(r, g, b, a);
 	}
 
-	void color(const color& c)
+	void color(const color& c) const
 	{
-		color(c.r, c.g, c.b, c.a);
+		color(c.r(), c.g(), c.b(), c.a());
 	}
 
-	void color(double r, double g, double b, double a = 1.0)
+	void color(double r, double g, double b, double a = 1.0) const
 	{
 		glColor4d(r, g, b, a);
 	}
 
-	void begin(GLenum mode)
+	void begin(GLenum mode) const
 	{
 		glBegin(mode);
 	}
 
-	void end()
+	void end() const
 	{
 		glEnd();
 	}
 
 	template<typename G>
-	void plot(const G& p, GLenum mode)
+	void plot(const G& p, GLenum mode) const
 	{
 		begin(mode);
 		plot(p);
@@ -132,14 +175,14 @@ public:
 	}
 
 	template<typename G>
-	void plot(const std::list<G>& l)
+	void plot(const std::list<G>& l) const
 	{
 		for( const auto& p : l )
 			plot(p);
 	}
 
 	template<typename G>
-	void plot(const std::list<G>& l, GLenum mode)
+	void plot(const std::list<G>& l, GLenum mode) const
 	{
 		glBegin(mode);
 		plot(l);
@@ -147,38 +190,38 @@ public:
 	}
 
 	template<typename G>
-	void plot(const std::vector<G>& l)
+	void plot(const std::vector<G>& l) const
 	{
 		for( const auto& p : l )
 			plot(p);
 	}
 
 	template<typename G>
-	void plot(const std::vector<G>& l, GLenum mode)
+	void plot(const std::vector<G>& l, GLenum mode) const
 	{
 		glBegin(mode);
 		plot(l);
 		glEnd();
 	}
 
-	void plot(const point<double, 2>& p)
+	void plot(const point<double, 2>& p) const
 	{
 		glVertex2d(p.x(), p.y());
 	}
 
-	void plot(const segment<double, 2>& s)
+	void plot(const segment<double, 2>& s) const
 	{
 		plot(s.from);
 		plot(s.to);
 	}
 
-	void plot(const polygon<double, 2>& poly)
+	void plot(const polygon<double, 2>& poly) const
 	{
 		for(const auto& p : poly)
 			plot(p);
 	}
 
-	void plot(const std::vector<polygon2d>& l, GLenum mode)
+	void plot(const std::vector<polygon2d>& l, GLenum mode) const
 	{
 		glBegin(mode);
 		for(const auto& p : l)
@@ -186,7 +229,7 @@ public:
 		glEnd();
 	}
 
-	void plot(const std::list<polygon2d>& l, GLenum mode)
+	void plot(const std::list<polygon2d>& l, GLenum mode) const
 	{
 		glBegin(mode);
 		for(const auto& p : l)
@@ -197,7 +240,7 @@ public:
 	/*
 	 * TODO: get values from opengl viewport
 	 */
-	void plot(const line2d& line)
+	void plot(const line2d& line) const
 	{
 		window_size winsiz = get_window_size();
 
@@ -256,21 +299,27 @@ public:
 		}
 	}
 
+	template <typename T>
+	void plot(const dcelp_placeholder<T, double, 2>& placeholder) const
+	{
+		plot(placeholder.p);
+	}
+
 	/*
 	 * dcel plots
 	 */
-	void plot(const typename gmt::dcel2d::vertex* v)
+	void plot(const typename gmt::dcel2d::vertex* v) const
 	{
-		plot(v->data);
+		plot(v->data.p);
 	}
 
-	void plot(const typename gmt::dcel2d::edge* e)
+	void plot(const typename gmt::dcel2d::edge* e) const
 	{
 		plot(e->origin);
 		plot(e->destination);
 	}
 
-	void plot(const typename gmt::dcel2d::face* f)
+	void plot(const typename gmt::dcel2d::face* f) const
 	{
 		if(f){
 			typename gmt::dcel2d::edge* e = f->incident_edge;
@@ -283,7 +332,7 @@ public:
 		}
 	}
 
-	void plot(const typename gmt::dcel2d::face* f, GLenum mode)
+	void plot(const typename gmt::dcel2d::face* f, GLenum mode) const
 	{
 		begin(mode);
 		plot(f);
@@ -296,7 +345,7 @@ public:
 	void plot(
 		const gmt::dcel2d& dcel,
 		component c,
-		GLenum mode)
+		GLenum mode) const
 	{
 		switch(c){
 		case VERTICES:
@@ -335,7 +384,7 @@ public:
 	 * get mouse point based on gmt::point2d,
 	 * limited by the window size
 	 */
-	virtual gmt::point2d get_mouse_point()
+	virtual gmt::point2d get_mouse_point() const
 	{
 		gmt::mouse_position m = get_mouse_position();
 		gmt::window_size w = get_window_size();

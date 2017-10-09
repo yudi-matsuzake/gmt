@@ -10,7 +10,7 @@
 namespace gmt {
 
 class composable_ui : public plotter {
-private:
+protected:
 	rect2d viewport;
 	rect2d ortho;
 	std::list<std::unique_ptr<ui_component>> component_list;
@@ -48,6 +48,10 @@ public:
 	{
 
 		gmt::window_size s = get_window_size();
+
+		ortho.width *= s.width/viewport.width;
+		ortho.height *= s.height/viewport.height;
+
 		viewport.pos.x() = 0.0;
 		viewport.pos.y() =  0.0;
 		viewport.width = s.width;

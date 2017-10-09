@@ -91,12 +91,12 @@ public:
 			glfwWaitEventsTimeout(timeout);
 	}
 
-	double get_time()
+	double get_time() const
 	{
 		return glfwGetTime();
 	}
 
-	window_size get_window_size()
+	window_size get_window_size() const
 	{
 		int w, h;
 		glfwGetFramebufferSize(window.get(), &w, &h);
@@ -258,7 +258,7 @@ public:
 	virtual ~ui_render()
 	{}
 
-	mouse_position get_mouse_position()
+	mouse_position get_mouse_position() const
 	{
 		mouse_position pos;
 		glfwGetCursorPos(window.get(), &(pos.x), &(pos.y));

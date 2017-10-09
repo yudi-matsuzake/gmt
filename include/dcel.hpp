@@ -333,7 +333,7 @@ public:
 		return v;
 	}
 
-	edge* add_edge(
+	virtual edge* add_edge(
 		vertex* a,
 		vertex* b,
 		face* face = nullptr)
@@ -361,6 +361,7 @@ public:
 				n++;
 				e = e->next;
 			}while(e != f->incident_edge);
+
 		}
 
 		return n;
@@ -439,7 +440,7 @@ private:
 	std::vector<faceptr> faces;
 };
 
-typedef dcel<gmt::point2d, void*, void*> dcel2d;
-typedef dcel<gmt::point3d, void*, void*> dcel3d;
+/* typedef dcel<gmt::point2d, void*, void*> dcel2d; */
+/* typedef dcel<gmt::point3d, void*, void*> dcel3d; */
 
 };

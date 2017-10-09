@@ -342,5 +342,8 @@ typedef point<float,	2> point2f;
 typedef point<double,	3> point3d;
 typedef point<int,	3> point3i;
 typedef point<float,	3> point3f;
+typedef point<double,	4> point4d;
+typedef point<int,	4> point4i;
+typedef point<float,	4> point4f;
 
 }
