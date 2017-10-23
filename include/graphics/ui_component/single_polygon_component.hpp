@@ -7,7 +7,7 @@
 namespace gmt {
 
 class single_polygon_component : public ui_component {
-private:
+protected:
 	polygon2d& poly;
 	int button;
 	int action;

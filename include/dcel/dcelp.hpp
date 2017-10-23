@@ -1,6 +1,6 @@
 #pragma once
 #include "algorithm/direction.hpp"
-#include "dcel.hpp"
+#include "dcel_structure.hpp"
 
 namespace gmt {
 
@@ -53,7 +53,6 @@ public:
 	using edge = typename dcelbase::edge;
 	using vertex = typename dcelbase::vertex;
 	using face = typename dcelbase::face;
-
 
 	dcelp()
 	{}

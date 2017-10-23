@@ -185,7 +185,8 @@ public:
 	void plot(const std::list<G>& l, GLenum mode) const
 	{
 		glBegin(mode);
-		plot(l);
+		for( const auto& p : l )
+			plot(l);
 		glEnd();
 	}
 
@@ -200,7 +201,8 @@ public:
 	void plot(const std::vector<G>& l, GLenum mode) const
 	{
 		glBegin(mode);
-		plot(l);
+		for(const auto& p : l)
+			plot(p);
 		glEnd();
 	}
 
