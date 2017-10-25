@@ -191,4 +191,17 @@ point<T, n_dimension> point_of_intersection(
 	return l0.point_on_line_at(x[0][0]);
 }
 
+/**
+  * calculates if three points are colinear
+  */
+template<typename T, std::size_t n_dimension>
+bool is_collinear(
+	const point<T, n_dimension>& p0,
+	const point<T, n_dimension>& p1,
+	const point<T, n_dimension>& p2)
+{
+	return direction_in(p0, p1, p2) == ON;
+}
+
+
 }

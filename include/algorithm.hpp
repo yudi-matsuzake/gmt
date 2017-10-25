@@ -11,3 +11,4 @@
 #include "algorithm/distance.hpp"
 #include "algorithm/linear-algebra.hpp"
 #include "algorithm/polygon-visibility.hpp"
+#include "algorithm/point-in-polygon.hpp"
