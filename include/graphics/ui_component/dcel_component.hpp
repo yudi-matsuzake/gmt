@@ -4,6 +4,7 @@
 #include "graphics/ui_component/single_polygon_component.hpp"
 #include "dcel/construct.hpp"
 #include "algorithm/distance.hpp"
+#include "algorithm/dcel.hpp"
 #include "ui_component.hpp"
 
 namespace gmt {
@@ -132,6 +133,14 @@ public:
 		}
 
 		return nearest;
+	}
+
+	/**
+	  * return the face that the mouse is on
+	  */
+	const dcel2d::face* get_mouse_face()
+	{
+		return dcel_find_face(dcel, mousepos);
 	}
 
 	bool dcel_ready() const
