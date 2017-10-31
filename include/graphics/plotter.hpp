@@ -14,7 +14,6 @@
 
 namespace gmt {
 
-
 class plotter : public ui_render {
 private:
 	/*
@@ -299,6 +298,12 @@ public:
 			plot_dcel_faces(dcel, mode);
 			break;
 		}
+	}
+
+	void plot(const gmt::vertex2d& v) const
+	{
+		color(v.color);
+		plot(static_cast<gmt::point2d>(v));
 	}
 
 	virtual void reshape()

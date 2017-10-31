@@ -11,7 +11,10 @@ bool is_equal(const T& a, const T& b, const T& e)
 	return (e == 0.0 && a == b) || fabs(a - b) <= e;
 }
 
-template<typename T, int n_dimension>
+/** calculates whether the point c is between
+  * a and b
+  */
+template<typename T, size_t n_dimension>
 bool is_between(
 	const point<T, n_dimension>& a, 
 	const point<T, n_dimension>& b, 

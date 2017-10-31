@@ -3,55 +3,48 @@
 #include "polygon.hpp"
 #include "direction.hpp"
 #include "algorithm/intersection.hpp"
+#include "misc.hpp"
 
 namespace gmt {
-
-bool is_upward_edge(
-	const point2d& p,
-	const point2d& a,
-	const point2d& b,
-	direction d)
-{
-	if(b.y() < p.y() || a.y() > p.y())
-		return false;
-
-	return d == LEFT;
-}
-
-bool is_downward_edge(
-	const point2d& p,
-	const point2d& a,
-	const point2d& b,
-	direction d)
-{
-	if(a.y() < p.y() || b.y() > p.y())
-		return false;
-
-	return d == RIGHT;
-}
-
 
 bool point_in_polygon(const polygon2d& poly, const point2d& p)
 {
 	int wn = 0;
+
+	switch(poly.size()){
+	case 0:
+		return false;
+		break;
+	case 1:
+		if(poly[0] == p)
+			return true;
+		return false;
+		break;
+	}
+
 	for(size_t i=0; i<poly.size(); i++){
 		point2d a = poly[i];
 		point2d b = poly[(i+1)%poly.size()];
 
-		if(is_collinear(a, b, p) || p == a)
+		if(p == a || p == b)
 			return true;
 
-		if(a.x() >= p.x() || b.x() >= p.x()){
-			if(p == a || p == b){
-				wn++;
-			}else{
-				direction d = direction_in(a, b, p);
+		if(is_collinear(a, b, p) && is_between(a, b, p))
+			return true;
 
-				if(is_upward_edge(p, a, b, d))
+		if(a.y() <= p.y()){
+			if(b.y() > p.y()){
+				gmt::direction d = direction_in(a, b, p);
+				if(d == gmt::LEFT)
 					wn++;
-				else if(is_downward_edge(p, a, b, d))
+			}
+		}else{
+			if(b.y() <= p.y()){
+				gmt::direction d = direction_in(a, b, p);
+				if(d == gmt::RIGHT)
 					wn--;
 			}
+				
 		}
 
 	}

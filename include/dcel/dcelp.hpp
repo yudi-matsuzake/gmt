@@ -1,4 +1,6 @@
 #pragma once
+
+#include "algorithm/point-in-polygon.hpp"
 #include "algorithm/direction.hpp"
 #include "dcel_structure.hpp"
 
@@ -60,6 +62,84 @@ public:
 	~dcelp()
 	{}
 
+	static bool dcel_point_in_face(const face* f, const point2d& p)
+	{
+		polygon2d polygon;
+
+		if(edge* e = f->incident_edge){
+			do{
+				polygon.push_back(e->origin->data.p);
+				e = e->next;
+			}while(e != f->incident_edge);
+		}
+
+		return point_in_polygon(polygon, p);
+	}
+
+	/**
+	  * calculates whether e1 has some point to the right based
+	  * on e0
+	  */
+	static bool dcel_has_some_point_right(edge* e0, edge* e1)
+	{
+		return direction_in(
+				e0->origin->data.p,
+				e0->destination->data.p,
+				e1->origin->data.p
+
+			) == RIGHT || direction_in(
+				e0->origin->data.p,
+				e0->destination->data.p,
+				e1->destination->data.p
+			) == RIGHT;
+	}
+
+	/**
+	  * Find the face in the dcel below the point `p`
+	  */
+	static face* dcel_find_face(dcelp& dcel, const point2d& p)
+	{
+		if(!dcel.n_face())
+			return dcel.external_face();
+
+		auto* f = dcel.face_at(0);
+		edge* closest_right = nullptr;
+		auto* e = f->incident_edge;
+
+		do{
+			if(f == dcel.external_face()){
+				if(!dcel_point_in_face(f, p))
+					return dcel.external_face();
+			}else{
+				if(dcel_point_in_face(f, p))
+					return f;
+			}
+
+			point2d a = e->origin->data.p;
+			point2d b = e->destination->data.p;
+
+			direction d = direction_in(a, b, p);
+
+			if(d == RIGHT){
+				if(closest_right == nullptr ||
+					dcel_has_some_point_right(closest_right, e)){
+					closest_right = e;
+					e = e->twin;
+					f = e->incident_face;
+				}
+			}else if(d == ON){
+				if(is_between(a, b, p))
+					return f;
+			}
+
+			if(f == dcel.external_face())
+				e = e->prev;
+			else
+				e = e->next;
+
+		}while(true);
+	}
+
 	/*
 	 * add edge with point semantic
 	 * TODO: add tratament when the edge is not a diagonal
@@ -69,44 +149,37 @@ public:
 		vertex* b,
 		face* face = nullptr)
 	{
-		if(face == nullptr){
-			if(edge* e = b->incident_edge){
-				edge* direction_most = e;
-				gmt::direction following_direction = gmt::direction_in(
-					e->origin->data.p,
-					e->destination->data.p,
-					a->data.p
-				);
 
+		if(face == nullptr){
+			if(a->incident_edge == nullptr){
+				face = dcel_find_face(*this, a->data.p);
+			}else if(b->incident_edge == nullptr){
+				face = dcel_find_face(*this, b->data.p);
+			}else if(edge* e = b->incident_edge){
+
+				edge* last_left = nullptr;
 
 				do{
-					gmt::direction d = gmt::direction_in(
+					auto d = gmt::direction_in(
 						e->origin->data.p,
 						e->destination->data.p,
 						a->data.p
 					);
 
-					if(d == following_direction){
-						if(gmt::direction_in(
-							direction_most->origin->data.p,
-							direction_most->destination->data.p,
-							e->origin->data.p
-							) == following_direction){
-
-							direction_most = e;
-						}
+					if(d == LEFT){
+						last_left = e;
+					}else if(d == RIGHT){
+						if(last_left)
+							break;
 					}
 
+					e = e->next;
 					e = e->twin;
-					e = e->prev;
 				}while(e != b->incident_edge);
 
-				if(following_direction == gmt::RIGHT)
-					face = direction_most->twin->incident_face;
-				else
-					face = direction_most->incident_face;
-			}else{
-				face = this->external_face();
+				if(!last_left)
+					last_left = e;
+				face = last_left->incident_face;
 			}
 		}
 

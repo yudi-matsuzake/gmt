@@ -143,7 +143,7 @@ private:
 		/*
 		 * connect faces
 		 */
-		if(e->next == e->twin){
+		if(e->next == e->twin || e->prev == e->twin){
 			e->incident_face = f;
 			e->twin->incident_face = f;
 		}else{
@@ -306,8 +306,8 @@ public:
 		const vertex_type& data,
 		edge* e)
 	{
-		vertices.push_back(vertexptr(new vertex(data)));
-		vertex* v = vertices[vertices.size() - 1].get();
+		vertex* v = new vertex(data);
+		vertices.push_back(vertexptr(v));
 		v->incident_edge = e;
 
 		auto twins = make_twins(v, e->destination);

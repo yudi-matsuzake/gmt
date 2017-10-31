@@ -4,7 +4,6 @@
 #include "graphics/ui_component/single_polygon_component.hpp"
 #include "dcel/construct.hpp"
 #include "algorithm/distance.hpp"
-#include "algorithm/dcel.hpp"
 #include "ui_component.hpp"
 
 namespace gmt {
@@ -140,7 +139,7 @@ public:
 	  */
 	const dcel2d::face* get_mouse_face()
 	{
-		return dcel_find_face(dcel, mousepos);
+		return dcel2d::dcel_find_face(dcel, mousepos);
 	}
 
 	bool dcel_ready() const
@@ -221,28 +220,29 @@ public:
 					int action,
 					int mods)
 	{
-		if(button == this->button && action == this->action && dcel_ready()){
-			if(m == ADD_VERTEX){
-				gmt::point2d p;
-				dcel2d::edge* e = get_nearest_edge(p);
-				if(e != nullptr)
-					dcel.add_vertex(p, e);
-				else
-					dcel.add_vertex(p);
-			}else{
-				if(first_vertex){
-					dcel.add_edge(
-						first_vertex,
-						get_nearest_vertex()
-					);
-					first_vertex = nullptr;
+		if(dcel_ready()){
+			if(button == this->button && action == this->action){
+				if(m == ADD_VERTEX){
+					gmt::point2d p;
+					dcel2d::edge* e = get_nearest_edge(p);
+					if(e != nullptr)
+						dcel.add_vertex(p, e);
+					else
+						dcel.add_vertex(p);
 				}else{
-					first_vertex = get_nearest_vertex();
+					if(first_vertex){
+						dcel.add_edge(
+							first_vertex,
+							get_nearest_vertex()
+						);
+						first_vertex = nullptr;
+					}else{
+						first_vertex =
+							get_nearest_vertex();
+					}
 				}
 			}
-		}
-
-		if(!dcel_ready()){
+		}else{
 			single_polygon_component::on_mouse_button(
 				ui,
 				button,
