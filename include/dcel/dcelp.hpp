@@ -106,13 +106,18 @@ public:
 		edge* closest_right = nullptr;
 		auto* e = f->incident_edge;
 
+		bool visit_new_face = true;
+
 		do{
-			if(f == dcel.external_face()){
-				if(!dcel_point_in_face(f, p))
-					return dcel.external_face();
-			}else{
-				if(dcel_point_in_face(f, p))
-					return f;
+			if(visit_new_face){
+				visit_new_face = false;
+				if(f == dcel.external_face()){
+					if(!dcel_point_in_face(f, p))
+						return dcel.external_face();
+				}else{
+					if(dcel_point_in_face(f, p))
+						return f;
+				}
 			}
 
 			point2d a = e->origin->data.p;
@@ -126,6 +131,7 @@ public:
 					closest_right = e;
 					e = e->twin;
 					f = e->incident_face;
+					visit_new_face = true;
 				}
 			}else if(d == ON){
 				if(is_between(a, b, p))
