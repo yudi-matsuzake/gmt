@@ -44,7 +44,7 @@ void from_polygon(
 		gmt::point2d p1;
 		gmt::dcel2d::vertex* first = d.add_vertex(p0);
 		gmt::dcel2d::vertex* v0 = first;
-		gmt::dcel2d::vertex* v1;
+		gmt::dcel2d::vertex* v1 = nullptr;
 
 		for(size_t i=1; i< n; i++){
 			p1 = p[i%n];
