@@ -26,6 +26,18 @@ public:
 	~polygon()
 	{}
 
+	friend std::ostream& operator<<(std::ostream& o, const polygon& poly)
+	{
+		o << "[";
+		if(poly.size()){
+			for(size_t i=0; i<poly.size() - 1; i++)
+				o << poly[i] << ", ";
+			o << poly[poly.size() - 1];
+		}
+		o << "]";
+		return o;
+	}
+
 };
 
 typedef polygon<double, 2>	polygon2d;

@@ -120,6 +120,26 @@ public:
 		return this->division(this->norm());
 	}
 
+	vec<T, n_dimension> rotation(double theta) const
+	{
+		if(n_dimension != 2)
+			throw std::runtime_error(
+				std::string("rotate: Not implemented for ")
+				+ std::to_string(n_dimension)
+				+ " dimensions!");
+
+		T new_x = cos(theta)*this->x() - sin(theta)*this->y();
+		T new_y = sin(theta)*this->x() + cos(theta)*this->y();
+
+		return vec<T, n_dimension>{ new_x, new_y };
+	}
+
+	void rotate(double theta)
+	{
+		*(this) = rotation(theta);
+	}
+
+
 };
 
 typedef vec<double,	2> vec2d;

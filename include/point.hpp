@@ -298,7 +298,7 @@ public:
 		return multiplication(d);
 	}
 
-	point<T, n_dimension>& operator*=(const T& d) const
+	point<T, n_dimension>& operator*=(const T& d)
 	{
 		multiply(d);
 		return *this;
