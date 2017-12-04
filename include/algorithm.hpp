@@ -12,5 +12,4 @@
 #include "algorithm/linear-algebra.hpp"
 #include "algorithm/polygon-visibility.hpp"
 #include "algorithm/point-in-polygon.hpp"
-#include "algorithm/polygon-morpher.hpp"
-#include "algorithm/polygon-refolder.hpp"
+#include "algorithm/polygon-refolding.hpp"

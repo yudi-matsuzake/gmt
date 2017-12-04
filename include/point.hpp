@@ -282,7 +282,7 @@ public:
 		return p;
 	}
 
-	point<T, n_dimension> operator/(const T& scalar) const
+	const point<T, n_dimension> operator/(const T& scalar) const
 	{
 		return this->division(scalar);
 	}
@@ -298,7 +298,7 @@ public:
 		return multiplication(d);
 	}
 
-	point<T, n_dimension>& operator*=(const T& d)
+	const point<T, n_dimension>& operator*=(const T& d)
 	{
 		multiply(d);
 		return *this;
