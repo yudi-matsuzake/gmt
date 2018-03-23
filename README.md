@@ -6,6 +6,12 @@
 
 ![Dcel](https://raw.githubusercontent.com/yudi-matsuzake/gmt/master/examples/screenshots/dcel.png)
 
-![Heart](https://raw.githubusercontent.com/yudi-matsuzake/gmt/master/examples/screenshots/heart.png)
+DCEL example
 
 ![Visibility](https://raw.githubusercontent.com/yudi-matsuzake/gmt/master/examples/screenshots/visibility.png)
+
+Visibility example
+
+![Heart](https://raw.githubusercontent.com/yudi-matsuzake/gmt/master/examples/screenshots/heart.png)
+
+Image example
