@@ -1,6 +1,12 @@
 # gmt
 
- Library for computational geometry implemented and used for educational purposes.
+Header-only library for computational geometry implemented and used for educational purposes.
+
+## installation
+
+Just copy the `gmt` folder to the include directory of your project.
+
+To a global installation, you can copy the `gmt` folder to `/usr/include`.
 
 ## screenshots
 
