@@ -191,6 +191,28 @@ inline bool is_above(
 	return !is_below(p0, p1);
 }
 
+/**
+  * calculate if p0 is on p1's left side
+  */
+template<typename T, std::size_t n_dimension>
+inline bool is_left(
+	const point<T, n_dimension>& p0,
+	const point<T, n_dimension>& p1)
+{
+	return p0.x() <= p1.x();
+}
+
+/**
+  * calculate if p0 is on p1's right side
+  */
+template<typename T, std::size_t n_dimension>
+inline bool is_right(
+	const point<T, n_dimension>& p0,
+	const point<T, n_dimension>& p1)
+{
+	return p0.x() > p1.x();
+}
+
 /*
  * classify the vertice i of the polygon
  */
@@ -240,6 +262,40 @@ vertex_type classify(
 	}
 
 	return REGULAR;
+}
+
+/** Calculate the leftmost point in the container.
+  *
+  * @return an iterator to the leftmost
+  */
+template<typename list_container>
+typename list_container::iterator leftmost(list_container& l)
+{
+	typename list_container::iterator leftmost = l.begin();
+
+	for(auto i = std::next(l.begin()); i != l.end(); i++){
+		if(is_left(*i, *leftmost))
+			leftmost = i;
+	}
+
+	return leftmost;
+}
+
+/** Calculate the rightmost point in the container.
+  *
+  * @return an iterator to the rightmost
+  */
+template<typename list_container>
+typename list_container::iterator rightmost(list_container& l)
+{
+	typename list_container::iterator rightmost = l.begin();
+
+	for(auto i = std::next(l.begin()); i != l.end(); i++){
+		if(is_right(*i, *rightmost))
+			rightmost = i;
+	}
+
+	return rightmost;
 }
 
 }
