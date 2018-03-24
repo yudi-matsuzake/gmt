@@ -32,4 +32,16 @@
 
 	* press enter to see the visibility polygon.
 
-**10-image.cpp** draws every vertices of an image and the mouse position repels the vertices.
+**10-image.cpp** draws every vertices of an image and the mouse position repels the vertices;
+
+	* open passing a image by command line argument, if the image is large, the program may freeze;
+
+	* press enter to spread the points across the visible area;
+
+	* click to make the points go to the mouse cursor position.
+
+**11-convex-hull.cpp** draws a convex hull of a set of points.
+
+	* add points by clicking;
+
+	* press space to add a random point in the visible area.
