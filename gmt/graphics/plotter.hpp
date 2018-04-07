@@ -6,6 +6,7 @@
 #include <gmt/graphics/render.hpp>
 #include <gmt/segment.hpp>
 #include <gmt/polygon.hpp>
+#include <gmt/polygon-with-holes.hpp>
 #include <gmt/line.hpp>
 #include <gmt/dcel/dcelp.hpp>
 #include <gmt/algorithm/intersection.hpp>
@@ -159,6 +160,20 @@ public:
 	{
 		for(const auto& p : poly)
 			plot(p);
+	}
+
+	void plot(const polygon_with_holes<double, 2>& poly) const
+	{
+		plot(poly);
+		for(const auto& hole : poly.holes())
+			plot(hole);
+	}
+
+	void plot(const polygon_with_holes<double, 2>& poly, GLenum mode) const
+	{
+		plot(static_cast<const polygon2d&>(poly), mode);
+		for(const auto& hole : poly.holes())
+			plot(hole, mode);
 	}
 
 	void plot(const std::vector<polygon2d>& l, GLenum mode) const

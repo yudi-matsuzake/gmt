@@ -2,6 +2,9 @@
 cmake_minimum_required (VERSION 3.0)
 project (gmt-examples)
 
+# export information about compilation
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 include_directories(..)
 
 find_package(OpenGL REQUIRED)
@@ -126,6 +129,15 @@ add_executable(
 )
 target_link_libraries(11-convex-hull ${OPENGL_gl_LIBRARY} glfw ${OpenCV_LIBS})
 
-# export information about compilation
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+add_executable(
+	12-point-in-polygon-with-holes
+	./12-point-in-polygon-with-holes.cpp
+	../gmt/algorithm/point-in-polygon.hpp
+	../gmt/graphics/composable_ui.hpp
+	../gmt/graphics/ui_component/exit_component.hpp
+	../gmt/graphics/ui_component/single_polygon_component.hpp
+	../gmt/graphics/ui_component/pan_component.hpp
+	../gmt/graphics/ui_component/zoom_component.hpp
+)
+target_link_libraries(12-point-in-polygon-with-holes ${OPENGL_gl_LIBRARY} glfw ${OpenCV_LIBS})
 
