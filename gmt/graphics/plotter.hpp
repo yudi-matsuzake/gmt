@@ -171,7 +171,7 @@ public:
 
 	void plot(const polygon_with_holes<double, 2>& poly, GLenum mode) const
 	{
-		plot(static_cast<const polygon2d&>(poly), mode);
+		plot(poly.boundary(), mode);
 		for(const auto& hole : poly.holes())
 			plot(hole, mode);
 	}

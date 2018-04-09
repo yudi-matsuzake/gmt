@@ -14,11 +14,7 @@ typedef enum {
 	ON_BONDARY
 } side;
 
-template<typename T>
-side side_of(const T& poly, const point2d& p);
-
-template<>
-side side_of<polygon2d>(const polygon2d& poly, const point2d& p)
+side side_of(const polygon2d& poly, const point2d& p)
 {
 	int wn = 0;
 
@@ -70,10 +66,9 @@ side side_of<polygon2d>(const polygon2d& poly, const point2d& p)
  * FIXME: (maybe this is reasonable?) this algorithm works with the
  * assumption that the holes are inside the boundary
  */
-template<>
-side side_of<polygon_with_holes2d>(const polygon_with_holes2d& poly, const point2d& p)
+side side_of(const polygon_with_holes2d& poly, const point2d& p)
 {
-	side s = side_of<polygon2d>(poly, p);
+	side s = side_of(poly.boundary(), p);
 	if(s != INSIDE)
 		return s;
 

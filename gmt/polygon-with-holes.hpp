@@ -24,6 +24,16 @@ public:
 		m_holes.push_back(p);
 	}
 
+	polygon<T, n_dimension>& boundary()
+	{
+		return static_cast<polygon2d&>(*this);
+	}
+
+	const polygon<T, n_dimension>& boundary() const
+	{
+		return static_cast<const polygon2d&>(*this);
+	}
+
 	polygon<T, n_dimension>& hole(size_t i)
 	{
 		return m_holes.at(i);

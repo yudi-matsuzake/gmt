@@ -45,3 +45,5 @@
 	* add points by clicking;
 
 	* press space to add a random point in the visible area.
+
+**12-point-in-polygon-with-holes.cpp** tests whether the point is in the polygon with holes.
