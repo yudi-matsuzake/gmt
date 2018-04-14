@@ -3,6 +3,7 @@
 #include <iostream>
 #include <list>
 #include <algorithm>
+#include <set>
 
 #include <gmt/polygon.hpp>
 #include <gmt/algorithm/comparators.hpp>
@@ -55,6 +56,7 @@ merge_hull_tangent get_tangent(
 	std::list<gmt::point2d>::iterator& second)
 {
 	merge_hull_tangent tangent(first, second);
+	merge_hull_tangent tangent_loop(first, second);
 
 	bool first_t = false, second_t = false;
 	std::list<gmt::point2d>::iterator candidate;
@@ -73,7 +75,8 @@ merge_hull_tangent get_tangent(
 				*candidate
 			);
 
-			if(d == RIGHT){
+			if((d == RIGHT || d == ON) &&
+				candidate != tangent_loop.second){
 				tangent.second = candidate;
 				first_t = false;
 			}else{
@@ -91,7 +94,8 @@ merge_hull_tangent get_tangent(
 				*candidate
 			);
 
-			if(d == RIGHT){
+			if((d == RIGHT || d == ON) &&
+				candidate != tangent_loop.first){
 				tangent.first = candidate;
 				second_t = false;
 			}else{
@@ -120,9 +124,15 @@ std::list<gmt::point2d> merge_hull_conquer(
 	 * get the iterators that represents
 	 * the leftmost point from the right side
 	 * and the rightmost point from the left side.
+	 *
+	 * FIXME: it's possible to get the higher/lowest
+	 * leftmost/rightmost in n iterations, this will make
+	 * 2n
 	 */
-	auto leftmost_from_right = leftmost(right);
-	auto rightmost_from_left = rightmost(left);
+	auto highest_leftmost_from_right = higher_leftmost(right);
+	auto lowest_leftmost_from_right = lowest_leftmost(right);
+	auto highest_rightmost_from_left = higher_rightmost(left);
+	auto lowest_rightmost_from_left = lowest_rightmost(left);
 
 	/*
 	 * get the top and bottom tangents
@@ -130,17 +140,16 @@ std::list<gmt::point2d> merge_hull_conquer(
 	auto bottom_tangent = get_tangent(
 		left,
 		right,
-		rightmost_from_left,
-		leftmost_from_right
+		lowest_rightmost_from_left,
+		lowest_leftmost_from_right
 	);
 
 	auto top_tangent = get_tangent(
 		right,
 		left,
-		leftmost_from_right,
-		rightmost_from_left
+		highest_leftmost_from_right,
+		highest_rightmost_from_left
 	);
-
 
 	/*
 	 * treat when the left side or the right side
@@ -149,16 +158,14 @@ std::list<gmt::point2d> merge_hull_conquer(
 	if(left.size() == 2){
 		if(left.begin() == bottom_tangent.first &&
 			std::next(left.begin()) == top_tangent.second){
-			std::swap(*left.begin(), *std::next(left.begin()));
-			std::swap(bottom_tangent.first, top_tangent.second);
+			left.splice(left.begin(), left, std::next(left.begin()));
 		}
 	}
 
 	if(right.size() == 2){
 		if(right.begin() == top_tangent.first &&
 			std::next(right.begin()) == bottom_tangent.second){
-			std::swap(*right.begin(), *std::next(right.begin()));
-			std::swap(bottom_tangent.second, top_tangent.first);
+			left.splice(right.begin(), right, std::next(right.begin()));
 		}
 	}
 
@@ -249,7 +256,7 @@ std::list<gmt::point2d> merge_hull_divide(
   * of points. Merge hull is based on divide and conquer approach and it's
   * complexity is O(n lg n).
   *
-  * FIXME: this algorithm not treat three or more collinear points
+  * FIXME: this algorithm not treat some cases of three or more collinear points
   *
   * @param points	container of points
   *
@@ -260,26 +267,24 @@ std::list<gmt::point2d> merge_hull_divide(
 template<typename list_container>
 gmt::polygon2d merge_hull(const list_container& points)
 {
+	/*
+	 * create a set to sort and uniquely add a point
+	 */
+	std::set<point2d, axis_comparator> sorted_unique(
+		points.begin(),
+		points.end(),
+		axis_comparator()
+	);
 
 	/*
 	 * create a random access point vector because
 	 * list_container can be std::list which hasn't
 	 * random access to it's elements
 	 */
-	std::vector<gmt::point2d> sorted;
-	sorted.reserve(points.size());
-
-	polygon2d ch;
-	ch.reserve(points.size());
-
-	for(const auto& i : points)
-		sorted.push_back(i);
-
-	/*
-	 * sort the vector of points based on the x
-	 * coordinate
-	 */
-	std::sort(sorted.begin(), sorted.end(), axis_comparator());
+	std::vector<gmt::point2d> sorted(
+		sorted_unique.begin(),
+		sorted_unique.end()
+	);
 
 	/*
 	 * call merge_hull_divide which returns a list of points
@@ -290,6 +295,9 @@ gmt::polygon2d merge_hull(const list_container& points)
 		0,
 		sorted.size()
 	);
+
+	polygon2d ch;
+	ch.reserve(points.size());
 
 	/*
 	 * build the polygon

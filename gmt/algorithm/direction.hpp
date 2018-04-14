@@ -79,8 +79,6 @@ double angle_to_left(
 /**
   * check if an vetex `i` of the polygon `poly` is
   * reflex
-  * TODO: this function consider the polygon was created
-  * in anti-clockwise; need to check that
   */
 template<typename T, std::size_t n_dimension>
 bool is_reflex(const polygon<T, n_dimension>& poly, std::size_t i)
@@ -281,6 +279,48 @@ typename list_container::iterator leftmost(list_container& l)
 	return leftmost;
 }
 
+/** Calculate the higher leftmost point in the container.
+  * In another words, this functions will return the greater
+  * axis y value
+  *
+  * @return an iterator to the higher leftmost
+  */
+template<typename list_container>
+typename list_container::iterator higher_leftmost(list_container& l)
+{
+	typename list_container::iterator leftmost = l.begin();
+
+	for(auto i = std::next(l.begin()); i != l.end(); i++){
+		if(i->x() < leftmost->x() ||
+			(i->x() == leftmost->x() && i->y() > leftmost->y())){
+			leftmost = i;
+		}
+	}
+
+	return leftmost;
+}
+
+/** Calculate the lowest leftmost point in the container.
+  * In another words, this functions will return the smallest
+  * axis y value
+  *
+  * @return an iterator to the higher leftmost
+  */
+template<typename list_container>
+typename list_container::iterator lowest_leftmost(list_container& l)
+{
+	typename list_container::iterator leftmost = l.begin();
+
+	for(auto i = std::next(l.begin()); i != l.end(); i++){
+		if(i->x() < leftmost->x() ||
+			(i->x() == leftmost->x() && i->y() < leftmost->y())){
+			leftmost = i;
+		}
+	}
+
+	return leftmost;
+}
+
 /** Calculate the rightmost point in the container.
   *
   * @return an iterator to the rightmost
@@ -293,6 +333,48 @@ typename list_container::iterator rightmost(list_container& l)
 	for(auto i = std::next(l.begin()); i != l.end(); i++){
 		if(is_right(*i, *rightmost))
 			rightmost = i;
+	}
+
+	return rightmost;
+}
+
+/** Calculate the higher rightmost point in the container.
+  * In another words, this functions will return the greater
+  * axis y value
+  *
+  * @return an iterator to the higher rightmost
+  */
+template<typename list_container>
+typename list_container::iterator higher_rightmost(list_container& l)
+{
+	typename list_container::iterator rightmost = l.begin();
+
+	for(auto i = std::next(l.begin()); i != l.end(); i++){
+		if(i->x() > rightmost->x() ||
+			(i->x() == rightmost->x() && i->y() > rightmost->y())){
+			rightmost = i;
+		}
+	}
+
+	return rightmost;
+}
+
+/** Calculate the lowest rightmost point in the container.
+  * In another words, this functions will return the smallest
+  * axis y value
+  *
+  * @return an iterator to the higher rightmost
+  */
+template<typename list_container>
+typename list_container::iterator lowest_rightmost(list_container& l)
+{
+	typename list_container::iterator rightmost = l.begin();
+
+	for(auto i = std::next(l.begin()); i != l.end(); i++){
+		if(i->x() > rightmost->x() ||
+			(i->x() == rightmost->x() && i->y() < rightmost->y())){
+			rightmost = i;
+		}
 	}
 
 	return rightmost;
