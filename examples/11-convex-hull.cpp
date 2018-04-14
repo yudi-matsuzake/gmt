@@ -21,6 +21,8 @@ public:
 		add_component(new gmt::exit_component);
 		add_component(new gmt::zoom_component);
 		add_component(new gmt::pan_component);
+
+		ch = gmt::merge_hull(points);
 	}
 
 	~convex_hull()
@@ -28,12 +30,14 @@ public:
 
 	gmt::point2d get_random_point()
 	{
-		double rx = ((double)rand())/((double)RAND_MAX);
-		double ry = ((double)rand())/((double)RAND_MAX);
+		/* double rx = ((double)rand())/((double)RAND_MAX); */
+		/* double ry = ((double)rand())/((double)RAND_MAX); */
+		int rx = rand()%(int)ortho.width;
+		int ry = rand()%(int)ortho.height;
 
 		gmt::point2d p;
-		p.x() = ortho.pos.x() + ortho.width*rx;
-		p.y() = ortho.pos.y() + ortho.height*ry;
+		p.x() = ortho.pos.x() + rx;
+		p.y() = ortho.pos.y() + ry;
 
 		return p;
 	}
