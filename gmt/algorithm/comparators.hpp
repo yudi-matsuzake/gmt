@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <gmt/point.hpp>
 
 namespace gmt {
@@ -13,6 +14,7 @@ protected:
 	size_t axis;
 	bool asc;
 	bool resolves_tie;
+
 public:
 
 	/*
@@ -37,10 +39,27 @@ public:
 	template<typename T>
 	bool operator()(const T& a, const T& b)
 	{
-		return asc
-			?(a[axis] < b[axis] ||
-				(a[axis] == b[axis] && a[axis+1] < b[axis+1]))
-			:(b[axis] < a[axis]);
+
+		auto compare = asc
+			? [](const T& a, const T& b, size_t axis)
+				{ return a[axis] < b[axis]; }
+			: [](const T& a, const T& b, size_t axis)
+				{ return a[axis] > b[axis]; };
+
+		if(resolves_tie){
+			size_t i = axis;
+
+			while(a[i] == b[i]){
+				i = (i+1)%a.ndim();
+
+				if(i == axis)
+					return false;
+			}
+
+			return compare(a, b, i);
+		}
+
+		return compare(a, b, axis);
 	}
 
 };
