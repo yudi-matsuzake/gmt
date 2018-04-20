@@ -1,6 +1,5 @@
 #pragma once
 
-#include <iostream>
 #include <list>
 #include <algorithm>
 #include <set>
@@ -23,10 +22,11 @@ std::list<gmt::point2d>::iterator merge_hull_next(
 	std::list<gmt::point2d>& l,
 	std::list<gmt::point2d>::iterator& i)
 {
-	if(std::next(i) == l.end())
+	if(std::next(i) == l.end()){
 		return l.begin();
-	else
+	}else{
 		return std::next(i);
+	}
 }
 
 /*
@@ -62,8 +62,15 @@ merge_hull_tangent get_tangent(
 	std::list<gmt::point2d>::iterator candidate;
 	gmt::direction d;
 
-	while(first_t == false || second_t == false){
+	while((first_t == false || second_t == false)){
+
+		if(first_list.size() <= 1)
+			first_t = true;
+		if(second_list.size() <= 1)
+			second_t = true;
+
 		if(second_t == false){
+
 			candidate = merge_hull_next(
 				second_list,
 				tangent.second
@@ -75,14 +82,32 @@ merge_hull_tangent get_tangent(
 				*candidate
 			);
 
-			if((d == RIGHT || d == ON) &&
-				candidate != tangent_loop.second){
+			switch(d){
+			case RIGHT:
 				tangent.second = candidate;
 				first_t = false;
-			}else{
+				break;
+			case LEFT:
 				second_t = true;
+				break;
+			case ON:
+				if(is_between(
+					*tangent.first,
+					*tangent.second,
+					*candidate)){
+					second_list.erase(candidate);
+				}else{
+					auto tmp = tangent.second;
+					tangent.second = candidate;
+					second_list.erase(tmp);
+				}
+
+				first_t = false;
+				break;
 			}
-		}else{
+
+		}else if(first_t == false){
+
 			candidate = merge_hull_prev(
 				first_list,
 				tangent.first
@@ -94,13 +119,30 @@ merge_hull_tangent get_tangent(
 				*candidate
 			);
 
-			if((d == RIGHT || d == ON) &&
-				candidate != tangent_loop.first){
+			switch(d){
+			case RIGHT:
 				tangent.first = candidate;
 				second_t = false;
-			}else{
+				break;
+			case LEFT:
 				first_t = true;
+				break;
+			case ON:
+				if(is_between(
+					*tangent.first,
+					*tangent.second,
+					*candidate)){
+					first_list.erase(candidate);
+				}else{
+					auto tmp = tangent.first;
+					tangent.first = candidate;
+					first_list.erase(tmp);
+				}
+
+				second_t = false;
+				break;
 			}
+
 		}
 	}
 
@@ -129,9 +171,7 @@ std::list<gmt::point2d> merge_hull_conquer(
 	 * leftmost/rightmost in n iterations, this will make
 	 * 2n
 	 */
-	auto highest_leftmost_from_right = higher_leftmost(right);
 	auto lowest_leftmost_from_right = lowest_leftmost(right);
-	auto highest_rightmost_from_left = higher_rightmost(left);
 	auto lowest_rightmost_from_left = lowest_rightmost(left);
 
 	/*
@@ -144,6 +184,8 @@ std::list<gmt::point2d> merge_hull_conquer(
 		lowest_leftmost_from_right
 	);
 
+	auto highest_leftmost_from_right = higher_leftmost(right);
+	auto highest_rightmost_from_left = higher_rightmost(left);
 	auto top_tangent = get_tangent(
 		right,
 		left,
@@ -165,7 +207,7 @@ std::list<gmt::point2d> merge_hull_conquer(
 	if(right.size() == 2){
 		if(right.begin() == top_tangent.first &&
 			std::next(right.begin()) == bottom_tangent.second){
-			left.splice(right.begin(), right, std::next(right.begin()));
+			right.splice(right.begin(), right, std::next(right.begin()));
 		}
 	}
 
@@ -178,6 +220,7 @@ std::list<gmt::point2d> merge_hull_conquer(
 		 i != top_tangent.second;){
 		auto cup = merge_hull_next(left, i);
 		left.erase(i);
+
 		i = cup;
 	}
 
@@ -214,19 +257,46 @@ std::list<gmt::point2d> merge_hull_divide(
 	 */
 	size_t siz = end - start;
 	if(siz == 3){
+		size_t a = start;
+		size_t b = start+1;
+		size_t c = start+2;
 		switch(gmt::direction_in(
-				sorted[start],
-				sorted[start+1],
-				sorted[start+2])){
-			case RIGHT:
-				l.push_back(sorted[start+2]);
-				l.push_back(sorted[start+1]);
-				l.push_back(sorted[start]);
+				sorted[a],
+				sorted[b],
+				sorted[c])){
+			case LEFT:
+				l.push_back(sorted[a]);
+				l.push_back(sorted[b]);
+				l.push_back(sorted[c]);
 				break;
-			default:
-				l.push_back(sorted[start]);
-				l.push_back(sorted[start+1]);
-				l.push_back(sorted[start+2]);
+			case RIGHT:
+				l.push_back(sorted[c]);
+				l.push_back(sorted[b]);
+				l.push_back(sorted[a]);
+				break;
+			case ON:
+
+				/*
+				 * if the three points are collinear,
+				 * then, remove the point that are in
+				 * the middle of the other two
+				 */
+				if(is_between(
+					sorted[a],
+					sorted[b],
+					sorted[c])){
+					l.push_back(sorted[a]);
+					l.push_back(sorted[b]);
+				}else if(is_between(
+					sorted[a],
+					sorted[c],
+					sorted[b])){
+					l.push_back(sorted[a]);
+					l.push_back(sorted[c]);
+				}else{
+					l.push_back(sorted[b]);
+					l.push_back(sorted[c]);
+				}
 				break;
 		}
 
@@ -255,8 +325,6 @@ std::list<gmt::point2d> merge_hull_divide(
   * Merge hull is a algorithm to calculate the convex hull of a collection
   * of points. Merge hull is based on divide and conquer approach and it's
   * complexity is O(n lg n).
-  *
-  * FIXME: this algorithm not treat some cases of three or more collinear points
   *
   * @param points	container of points
   *

@@ -22,7 +22,8 @@ public:
 		add_component(new gmt::zoom_component);
 		add_component(new gmt::pan_component);
 
-		ch = gmt::merge_hull(points);
+		glPointSize(5);
+
 	}
 
 	~convex_hull()
@@ -30,14 +31,12 @@ public:
 
 	gmt::point2d get_random_point()
 	{
-		/* double rx = ((double)rand())/((double)RAND_MAX); */
-		/* double ry = ((double)rand())/((double)RAND_MAX); */
-		int rx = rand()%(int)ortho.width;
-		int ry = rand()%(int)ortho.height;
+		double rx = ((double)rand())/((double)RAND_MAX);
+		double ry = ((double)rand())/((double)RAND_MAX);
 
 		gmt::point2d p;
-		p.x() = ortho.pos.x() + rx;
-		p.y() = ortho.pos.y() + ry;
+		p.x() = ortho.pos.x() + ortho.width*rx;
+		p.y() = ortho.pos.y() + ortho.height*ry;
 
 		return p;
 	}
@@ -50,8 +49,7 @@ public:
 			gmt::point2d m = get_mouse_point();
 			points.push_back(m);
 
-			if(points.size() >= 3)
-				ch = gmt::merge_hull(points);
+			ch = gmt::merge_hull(points);
 		}
 	}
 
@@ -73,13 +71,16 @@ public:
 	{
 		clear();
 
-		color(white);
-		plot(points, GL_POINTS);
 		if(ch.size()){
 			color(blue);
 			plot(ch, GL_LINE_LOOP);
+			color(white);
+			plot(points, GL_POINTS);
 			color(green);
 			plot(ch, GL_POINTS);
+		}else{
+			color(white);
+			plot(points, GL_POINTS);
 		}
 	}
 };
